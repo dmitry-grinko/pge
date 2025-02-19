@@ -1,7 +1,7 @@
 locals {
   tags = {
     Environment = var.environment
-    Name        = var.project_name
+    Name        = var.project-name
   }
 }
 
