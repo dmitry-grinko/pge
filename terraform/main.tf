@@ -18,7 +18,7 @@ module "waf" {
   source             = "./modules/waf"
   waf_name           = "my-waf"
   waf_description    = "My WAF for the application"
-  ip_set_name        = "blocked-ips"
+  ip_set_name        = "blocked-ip-addresses"
   ip_set_description = "IP set for blocking specific IPs"
   blocked_ips        = ["192.0.2.0/32", "203.0.113.0/32"] # Replace with your IPs
 }
