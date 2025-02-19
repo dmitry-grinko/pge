@@ -12,7 +12,7 @@ resource "aws_cloudfront_distribution" "website_cdn" {
   enabled             = true
   is_ipv6_enabled    = true
   default_root_object = "index.html"
-  aliases            = ["${var.website_domain}-${random_string.suffix.result}"]
+  aliases            = []
 
   origin {
     domain_name = var.bucket_regional_domain_name
@@ -48,8 +48,7 @@ resource "aws_cloudfront_distribution" "website_cdn" {
   }
 
   viewer_certificate {
-    acm_certificate_arn = var.acm_certificate_arn
-    ssl_support_method  = "sni-only"
+    cloudfront_default_certificate = true
   }
 
   price_class = "PriceClass_100"
