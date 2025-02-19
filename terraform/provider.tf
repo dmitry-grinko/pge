@@ -6,9 +6,9 @@ terraform {
     }
   }
 
-  # aws s3api create-bucket --bucket dmitry-grinko-aws-templates-lamnbda-tfstate --region us-east-1
+  # aws s3api create-bucket --bucket dmitry-grinko-pge-interview-app-tfstate --region us-east-1
   backend "s3" {
-    bucket = "dmitry-grinko-aws-templates-lamnbda-tfstate"
+    bucket = "dmitry-grinko-pge-interview-app-tfstate"
     key    = "state.tfstate"
     region = "us-east-1"
   }
