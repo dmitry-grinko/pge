@@ -136,15 +136,6 @@ jobs:
         working-directory: frontend
         run: npm run build
 
-      - name: List build output directories
-        run: |
-          echo "Content of frontend directory:"
-          ls -la frontend/
-          echo "\nContent of frontend/.next directory:"
-          ls -la frontend/.next || echo "/.next directory not found"
-          echo "\nContent of frontend/out directory:"
-          ls -la frontend/out || echo "/out directory not found"
-
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -154,7 +145,7 @@ jobs:
 
       - name: Deploy to S3
         run: |
-          aws s3 sync frontend/.next/out s3://${{ env.TF_VAR_bucket-name }}/ \
+          aws s3 sync frontend/out s3://${{ env.TF_VAR_bucket-name }}/ \
             --delete \
             --cache-control "max-age=3600"
 
