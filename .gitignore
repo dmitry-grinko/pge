@@ -4,3 +4,4 @@ terraform/terraform.tfvars
 .notes
 .env
 node_modules
+.DS_Store
