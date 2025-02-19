@@ -121,6 +121,21 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Build Next.js application
+        working-directory: frontend
+        run: npm run build
+
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -130,7 +145,7 @@ jobs:
 
       - name: Deploy to S3
         run: |
-          aws s3 sync frontend/out s3://${{ env.TF_VAR_bucket-name }}/ \
+          aws s3 sync frontend/.next/out s3://${{ env.TF_VAR_bucket-name }}/ \
             --delete \
             --cache-control "max-age=3600"
 
