@@ -23,6 +23,50 @@ permissions:
   contents: read
 
 jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: backend/auth/package-lock.json
+
+      - name: Install dependencies
+        working-directory: backend/lambdas/auth
+        run: npm ci
+
+      - name: Lint code
+        working-directory: backend/lambdas/auth
+        run: npm run lint
+
+      - name: Run tests
+        working-directory: backend/lambdas/auth
+        run: npm test
+
+      - name: Build and package
+        working-directory: backend/lambdas/auth
+        run: |
+          npm run package
+          if [ ! -f lambda-auth.zip ]; then
+            echo "Error: lambda-auth.zip was not created"
+            exit 1
+          fi
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: lambda-function
+          path: backend/lambdas/auth/lambda-auth.zip
+          retention-days: 5
+
   infrastructure:
     name: Deploy Infrastructure
     runs-on: ubuntu-latest
@@ -30,6 +74,16 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
+
+      - name: Download Auth Lambda artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: lambda-function
+          path: backend/lambdas/auth
+
+      - name: Set Auth Lambda filename
+        run: |
+          echo "TF_VAR_filename=$(pwd)/backend/lambdas/auth/lambda-auth.zip" >> $GITHUB_ENV
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
