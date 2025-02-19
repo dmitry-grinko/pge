@@ -24,6 +24,7 @@ permissions:
 
 jobs:
   build:
+    name: Build Lambda Function
     runs-on: ubuntu-latest
     permissions:
       contents: read
