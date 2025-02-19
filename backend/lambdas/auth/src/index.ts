@@ -3,7 +3,6 @@ import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {
     console.log('Received event:', JSON.stringify(event, null, 2));
-
     const randomNumber = Math.floor(Math.random() * 10) + 1;
 
     return {
