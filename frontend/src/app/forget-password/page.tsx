@@ -1,11 +1,11 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+// import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
 export default function ForgetPassword() {
-  const router = useRouter();
+//   const router = useRouter();
   const [email, setEmail] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -33,6 +33,7 @@ export default function ForgetPassword() {
       setSuccess('Password reset instructions have been sent to your email.');
       setEmail('');
     } catch (err) {
+      console.error('Error:', err);
       setError('Failed to send reset email. Please try again.');
     } finally {
       setLoading(false);
@@ -47,7 +48,7 @@ export default function ForgetPassword() {
             Reset your password
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
-            Enter your email address and we'll send you instructions to reset your password.
+            Enter your email address and we&apos;ll send you instructions to reset your password.
           </p>
         </div>
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
