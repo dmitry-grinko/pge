@@ -1,16 +1,22 @@
+resource "random_string" "suffix" {
+  length  = 8
+  special = false
+  upper   = false
+}
+
 resource "aws_cloudfront_origin_access_identity" "oai" {
-  comment = "OAI for ${var.website_domain}"
+  comment = "OAI for ${var.website_domain}-${random_string.suffix.result}"
 }
 
 resource "aws_cloudfront_distribution" "website_cdn" {
   enabled             = true
   is_ipv6_enabled    = true
   default_root_object = "index.html"
-  aliases            = [var.website_domain]
+  aliases            = ["${var.website_domain}-${random_string.suffix.result}"]
 
   origin {
     domain_name = var.bucket_regional_domain_name
-    origin_id   = "S3-${var.website_domain}"
+    origin_id   = "S3-${var.website_domain}-${random_string.suffix.result}"
 
     s3_origin_config {
       origin_access_identity = aws_cloudfront_origin_access_identity.oai.cloudfront_access_identity_path
@@ -20,7 +26,7 @@ resource "aws_cloudfront_distribution" "website_cdn" {
   default_cache_behavior {
     allowed_methods  = ["GET", "HEAD"]
     cached_methods   = ["GET", "HEAD"]
-    target_origin_id = "S3-${var.website_domain}"
+    target_origin_id = "S3-${var.website_domain}-${random_string.suffix.result}"
 
     forwarded_values {
       query_string = false
