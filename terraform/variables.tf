@@ -38,8 +38,3 @@ variable "root-domain" {
   description = "Root domain name (e.g., example.com)"
   type        = string
 }
-
-variable "project_name" {
-  description = "Name of the project"
-  type        = string
-}

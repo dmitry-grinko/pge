@@ -62,7 +62,7 @@ resource "aws_route53_record" "static_website" {
 module "lambda" {
   source = "./modules/lambda"
 
-  function_name      = var.project_name
+  function_name      = var.project-name
   environment        = var.environment
   runtime            = "nodejs20.x"
   handler            = "index.handler"
@@ -74,7 +74,7 @@ module "lambda" {
 module "api_gateway" {
   source = "./modules/api-gateway"
 
-  name                 = "${var.project_name}-api"
+  name                 = "${var.project-name}-api"
   environment          = var.environment
   lambda_function_arn  = module.lambda.function_arn
   lambda_function_name = module.lambda.function_name
