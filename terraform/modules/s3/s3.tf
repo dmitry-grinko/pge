@@ -1,11 +1,17 @@
+resource "random_string" "suffix" {
+  length  = 8
+  special = false
+  upper   = false
+}
+
 # S3 bucket for static website hosting
 resource "aws_s3_bucket" "this" {
-  bucket = var.bucket_name
+  bucket = "${var.bucket_name}-${random_string.suffix.result}"
   
   force_destroy = true
 
   tags = {
-    Name        = var.bucket_name
+    Name        = "${var.bucket_name}-${random_string.suffix.result}"
     Environment = var.environment
   }
 }
