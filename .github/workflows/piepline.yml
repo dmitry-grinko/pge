@@ -63,7 +63,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: lambda-function
+          name: lambda-auth
           path: backend/lambdas/auth/lambda-auth.zip
           retention-days: 5
 
@@ -79,7 +79,7 @@ jobs:
       - name: Download Auth Lambda artifact
         uses: actions/download-artifact@v4
         with:
-          name: lambda-function
+          name: lambda-auth
           path: backend/lambdas/auth
 
       - name: Set Auth Lambda filename
@@ -106,10 +106,22 @@ jobs:
         working-directory: terraform
         run: terraform init
 
+      - name: Terraform Validate
+        working-directory: terraform
+        run: terraform validate
+
+      - name: Terraform Plan
+        working-directory: terraform
+        run: terraform plan -out=plan.tfplan
+
+      - name: Terraform Show
+        working-directory: terraform
+        run: terraform show plan.tfplan
+
       - name: Terraform Apply
         working-directory: terraform
         if: github.ref == 'refs/heads/main'
-        run: terraform apply -auto-approve
+        run: terraform apply -auto-approve plan.tfplan
 
   deploy-content:
     name: Deploy Website Content
