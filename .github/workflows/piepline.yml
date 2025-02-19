@@ -130,7 +130,7 @@ jobs:
 
       - name: Deploy to S3
         run: |
-          aws s3 sync frontend/ s3://${{ env.TF_VAR_bucket-name }}/ \
+          aws s3 sync frontend/out s3://${{ env.TF_VAR_bucket-name }}/ \
             --delete \
             --cache-control "max-age=3600"
 
