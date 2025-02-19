@@ -1,28 +1,82 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 
+interface LoginData {
+  email: string;
+  password: string;
+}
+
+interface SignupData extends LoginData {
+  name?: string;
+}
+
+interface ForgotPasswordData {
+  email: string;
+}
+
+const handleLogin = async (data: LoginData): Promise<APIGatewayProxyResult> => {
+  // TODO: Implement actual login logic
+  return {
+    statusCode: 200,
+    headers: {
+      'Content-Type': 'application/json',
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Credentials': true,
+    },
+    body: JSON.stringify({ token: 'mocked-jwt-token' }),
+  };
+};
+
+const handleSignup = async (data: SignupData): Promise<APIGatewayProxyResult> => {
+  // TODO: Implement actual signup logic
+  return {
+    statusCode: 201,
+    headers: {
+      'Content-Type': 'application/json',
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Credentials': true,
+    },
+    body: JSON.stringify({ message: 'User created' }),
+  };
+};
+
+const handleForgotPassword = async (data: ForgotPasswordData): Promise<APIGatewayProxyResult> => {
+  // TODO: Implement actual password reset logic
+  return {
+    statusCode: 200,
+    headers: {
+      'Content-Type': 'application/json',
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Credentials': true,
+    },
+    body: JSON.stringify({ message: 'Reset link sent' }),
+  };
+};
+
 export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {
-    console.log('Received event:', JSON.stringify(event, null, 2));
-    const randomNumber = Math.floor(Math.random() * 10) + 1;
+    const { path, httpMethod, body } = event;
+    const data = JSON.parse(body || '{}');
 
-    return {
-      statusCode: 200,
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Credentials': true,
-      },
-      body: JSON.stringify({
-        number: randomNumber,
-        timestamp: new Date().toISOString(),
-        requestId: event.requestContext?.requestId || 'unknown'
-      }),
-    };
+    switch (true) {
+      case path === '/auth/login' && httpMethod === 'POST':
+        return await handleLogin(data);
+      case path === '/auth/signup' && httpMethod === 'POST':
+        return await handleSignup(data);
+      case path === '/auth/forgot-password' && httpMethod === 'POST':
+        return await handleForgotPassword(data);
+      default:
+        return {
+          statusCode: 404,
+          headers: {
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Credentials': true,
+          },
+          body: JSON.stringify({ message: 'Not found' }),
+        };
+    }
   } catch (error) {
-    console.error(
-      'Error processing request:',
-      error instanceof Error ? error.message : String(error)
-    );
+    console.error('Error processing request:', error instanceof Error ? error.message : String(error));
     
     return {
       statusCode: 500,
@@ -33,7 +87,6 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
       },
       body: JSON.stringify({
         message: 'Internal server error',
-        requestId: event.requestContext?.requestId || 'unknown',
       }),
     };
   }

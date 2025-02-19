@@ -19,9 +19,21 @@ resource "aws_apigatewayv2_integration" "lambda" {
   integration_uri    = var.lambda_function_arn
 }
 
-resource "aws_apigatewayv2_route" "get_info" {
+resource "aws_apigatewayv2_route" "login" {
   api_id = aws_apigatewayv2_api.main.id
-  route_key = "GET /random"
+  route_key = "POST /auth/login"
+  target    = "integrations/${aws_apigatewayv2_integration.lambda.id}"
+}
+
+resource "aws_apigatewayv2_route" "signup" {
+  api_id = aws_apigatewayv2_api.main.id
+  route_key = "POST /auth/signup"
+  target    = "integrations/${aws_apigatewayv2_integration.lambda.id}"
+}
+
+resource "aws_apigatewayv2_route" "forgot_password" {
+  api_id = aws_apigatewayv2_api.main.id
+  route_key = "POST /auth/forgot-password"
   target    = "integrations/${aws_apigatewayv2_integration.lambda.id}"
 }
 

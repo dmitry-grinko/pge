@@ -9,8 +9,14 @@ export default {
   theme: {
     extend: {
       colors: {
-        background: "var(--background)",
+        background: "#2a3e48",
         foreground: "var(--foreground)",
+        card: {
+          background: {
+            light: "white",
+            dark: "white"
+          }
+        }
       },
     },
   },
