@@ -15,6 +15,7 @@ interface ForgotPasswordData {
 
 const handleLogin = async (data: LoginData): Promise<APIGatewayProxyResult> => {
   // TODO: Implement actual login logic
+  console.log('handleLogin', data);
   return {
     statusCode: 200,
     headers: {
@@ -28,6 +29,7 @@ const handleLogin = async (data: LoginData): Promise<APIGatewayProxyResult> => {
 
 const handleSignup = async (data: SignupData): Promise<APIGatewayProxyResult> => {
   // TODO: Implement actual signup logic
+  console.log('handleSignup', data);
   return {
     statusCode: 201,
     headers: {
@@ -41,6 +43,7 @@ const handleSignup = async (data: SignupData): Promise<APIGatewayProxyResult> =>
 
 const handleForgotPassword = async (data: ForgotPasswordData): Promise<APIGatewayProxyResult> => {
   // TODO: Implement actual password reset logic
+  console.log('handleForgotPassword', data);
   return {
     statusCode: 200,
     headers: {
@@ -55,6 +58,7 @@ const handleForgotPassword = async (data: ForgotPasswordData): Promise<APIGatewa
 export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {
     const { path, httpMethod, body } = event;
+    console.log('handler', path, httpMethod, body);
     const data = JSON.parse(body || '{}');
 
     switch (true) {
