@@ -15,7 +15,7 @@ export function withAuth<P extends object>(Component: ComponentType<P>) {
           // Check if user is authenticated by verifying token exists and is not expired
           const token = localStorage.getItem('accessToken');
           const tokenExpiry = localStorage.getItem('tokenExpiry');
-          const isAuthed = token && tokenExpiry && Date.now() < parseInt(tokenExpiry);
+          const isAuthed = Boolean(token && tokenExpiry && Date.now() < parseInt(tokenExpiry));
           setIsAuthenticated(isAuthed);
 
           // If not authenticated, redirect to login

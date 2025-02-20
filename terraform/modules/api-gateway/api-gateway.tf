@@ -13,14 +13,18 @@ resource "aws_apigatewayv2_api" "main" {
       "X-Requested-With",
       "Access-Control-Allow-Origin",
       "Access-Control-Allow-Methods",
-      "Access-Control-Allow-Headers"
+      "Access-Control-Allow-Headers",
+      "Access-Control-Allow-Credentials",
+      "Origin",
+      "Accept"
     ]
     allow_credentials = true
     expose_headers = [
       "Access-Control-Allow-Origin",
       "Access-Control-Allow-Methods",
       "Access-Control-Allow-Headers",
-      "Access-Control-Allow-Credentials"
+      "Access-Control-Allow-Credentials",
+      "Access-Control-Expose-Headers"
     ]
     max_age = 300
   }
@@ -35,6 +39,7 @@ resource "aws_apigatewayv2_stage" "main" {
   default_route_settings {
     throttling_burst_limit = 5000
     throttling_rate_limit  = 10000
+    detailed_metrics_enabled = true
   }
   
   tags = var.tags
