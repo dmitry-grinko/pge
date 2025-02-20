@@ -78,14 +78,21 @@ function isV2Event(event: APIGatewayProxyEvent | APIGatewayProxyEventV2): event 
 export const handler = async (
   event: APIGatewayProxyEvent | APIGatewayProxyEventV2
 ): Promise<APIGatewayProxyResult | APIGatewayProxyResultV2> => {
+
+  console.log("event", event);
+
   // Determine HTTP method and path based on event version
   const httpMethod = isV2Event(event) 
     ? event.requestContext.http.method 
     : event.httpMethod;
 
+  console.log("httpMethod", httpMethod);
+
   const path = isV2Event(event) 
     ? event.rawPath 
     : event.path;
+  
+  console.log("path", path);
 
   if (httpMethod === 'OPTIONS') {
     return { statusCode: 200, headers: corsHeaders, body: '' };
@@ -93,6 +100,8 @@ export const handler = async (
 
   try {
     const body = event.body ? JSON.parse(event.body) : {};
+
+    console.log("body", body);
 
     switch (path) {
       case '/auth/login':
