@@ -4,6 +4,7 @@ import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { login } from '@/services/api';
+import { withAuthRedirect } from '@/components/withAuthRedirect';
 
 function LoginContent() {
   const router = useRouter();
@@ -143,10 +144,12 @@ function LoginContent() {
   );
 }
 
-export default function LoginPage() {
+function LoginPage() {
   return (
     <Suspense fallback={<div>Loading...</div>}>
       <LoginContent />
     </Suspense>
   );
 }
+
+export default withAuthRedirect(LoginPage);
