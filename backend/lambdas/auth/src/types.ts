@@ -20,4 +20,12 @@ export interface CognitoTokens {
 
 export interface AuthError extends Error {
   code?: string;
+}
+
+export interface CorsHeaders {
+  'Access-Control-Allow-Origin': string;
+  'Access-Control-Allow-Methods': string;
+  'Access-Control-Allow-Headers': string;
+  'Access-Control-Allow-Credentials': boolean;
+  'Access-Control-Max-Age': number;
 } 

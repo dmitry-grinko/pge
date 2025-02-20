@@ -4,8 +4,19 @@ resource "aws_apigatewayv2_api" "main" {
   cors_configuration {
     allow_origins = ["https://pge.dmitrygrinko.com"]
     allow_methods = ["POST", "GET", "OPTIONS"]
-    allow_headers = ["Content-Type", "Authorization"]
+    allow_headers = [
+      "Content-Type",
+      "Authorization",
+      "X-Amz-Date",
+      "X-Api-Key",
+      "X-Amz-Security-Token",
+      "X-Requested-With"
+    ]
     allow_credentials = true
+    expose_headers = [
+      "Access-Control-Allow-Origin",
+      "Access-Control-Allow-Headers"
+    ]
     max_age = 300
   }
   tags = var.tags
@@ -59,6 +70,12 @@ resource "aws_apigatewayv2_route" "signup_options" {
 resource "aws_apigatewayv2_route" "forgot_password_options" {
   api_id = aws_apigatewayv2_api.main.id
   route_key = "OPTIONS /auth/forgot-password"
+  target    = "integrations/${aws_apigatewayv2_integration.lambda.id}"
+}
+
+resource "aws_apigatewayv2_route" "options_default" {
+  api_id = aws_apigatewayv2_api.main.id
+  route_key = "OPTIONS /{proxy+}"
   target    = "integrations/${aws_apigatewayv2_integration.lambda.id}"
 }
 
