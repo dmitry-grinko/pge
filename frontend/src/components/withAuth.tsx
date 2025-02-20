@@ -8,29 +8,28 @@ export function withAuth<T extends object>(WrappedComponent: ComponentType<T>) {
     const router = useRouter();
 
     useEffect(() => {
-      // Check for authentication token
-      const token = localStorage.getItem('token');
+      const accessToken = localStorage.getItem('accessToken');
+      const tokenExpiry = localStorage.getItem('tokenExpiry');
       
-      if (!token) {
-        // Redirect to login if no token found
+      if (!accessToken || !tokenExpiry) {
         router.push('/login');
         return;
       }
 
-      // TODO: Add token validation logic here
-      // For example, verify token expiration or make an API call to validate
-      // If token is invalid, clear it and redirect to login
-      // const isValidToken = validateToken(token);
-      // if (!isValidToken) {
-      //   localStorage.removeItem('token');
-      //   router.push('/login');
-      // }
+      // Check if token is expired
+      if (Date.now() > parseInt(tokenExpiry, 10)) {
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('idToken');
+        localStorage.removeItem('refreshToken');
+        localStorage.removeItem('tokenExpiry');
+        router.push('/login');
+        return;
+      }
     }, [router]);
 
-    // You might want to add a loading state while checking authentication
-    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
-    if (!token) {
-      return null; // or return a loading spinner
+    const accessToken = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
+    if (!accessToken) {
+      return null;
     }
 
     return <WrappedComponent {...props} />;

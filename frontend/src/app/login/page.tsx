@@ -1,23 +1,40 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { login } from '@/services/api';
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+
+  useEffect(() => {
+    if (searchParams?.get('verified') === 'true') {
+      setSuccess('Email verified successfully! You can now log in.');
+    }
+  }, [searchParams]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
 
     try {
-      const response = await login(email, password);
-      localStorage.setItem('token', response.token);
+      const tokens = await login(email, password);
+      
+      // Store tokens
+      localStorage.setItem('accessToken', tokens.accessToken);
+      localStorage.setItem('idToken', tokens.idToken);
+      localStorage.setItem('refreshToken', tokens.refreshToken);
+      
+      // Set token expiry (1 hour from now)
+      const expiry = Date.now() + (60 * 60 * 1000);
+      localStorage.setItem('tokenExpiry', expiry.toString());
+      
       router.push('/dashboard');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred during login');
@@ -35,6 +52,9 @@ export default function LoginPage() {
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           {error && (
             <div className="text-red-500 text-sm text-center">{error}</div>
+          )}
+          {success && (
+            <div className="text-green-500 text-sm text-center">{success}</div>
           )}
           <div className="rounded-md shadow-sm space-y-4">
             <div>
