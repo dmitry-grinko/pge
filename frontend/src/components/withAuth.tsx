@@ -2,23 +2,20 @@
 
 import { useRouter } from 'next/navigation';
 import { useEffect, ComponentType, useState } from 'react';
+import { useAuthStore } from '@/store/auth.store';
 
 export function withAuth<P extends object>(Component: ComponentType<P>) {
   return function WrappedComponent(props: P) {
     const router = useRouter();
     const [isLoading, setIsLoading] = useState(true);
-    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const { checkAuth, initializeFromStorage } = useAuthStore();
 
     useEffect(() => {
-      const checkAuth = async () => {
+      const verifyAuth = async () => {
         try {
-          // Check if user is authenticated by verifying token exists and is not expired
-          const token = localStorage.getItem('accessToken');
-          const tokenExpiry = localStorage.getItem('tokenExpiry');
-          const isAuthed = Boolean(token && tokenExpiry && Date.now() < parseInt(tokenExpiry));
-          setIsAuthenticated(isAuthed);
+          initializeFromStorage();
+          const isAuthed = checkAuth();
 
-          // If not authenticated, redirect to login
           if (!isAuthed) {
             router.push('/login');
           }
@@ -30,15 +27,11 @@ export function withAuth<P extends object>(Component: ComponentType<P>) {
         }
       };
 
-      checkAuth();
-    }, [router]);
+      verifyAuth();
+    }, [router, checkAuth, initializeFromStorage]);
 
     if (isLoading) {
-      return <div>Loading...</div>; // Or your loading component
-    }
-
-    if (!isAuthenticated) {
-      return null; // Don't render anything while redirecting
+      return <div>Loading...</div>;
     }
 
     return <Component {...props} />;

@@ -3,7 +3,7 @@
 import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { login } from '@/services/api';
+import { useAuthStore } from '@/store/auth.store';
 import { withAuthRedirect } from '@/components/withAuthRedirect';
 
 function LoginContent() {
@@ -13,6 +13,8 @@ function LoginContent() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  
+  const { login } = useAuthStore();
 
   useEffect(() => {
     if (searchParams?.get('verified') === 'true') {
@@ -20,41 +22,12 @@ function LoginContent() {
     }
   }, [searchParams]);
 
-  useEffect(() => {
-    const checkAuthStatus = async () => {
-      try {
-        // Check if user is authenticated by verifying token exists and is not expired
-        const token = localStorage.getItem('accessToken');
-        const tokenExpiry = localStorage.getItem('tokenExpiry');
-        const isAuthed = Boolean(token && tokenExpiry && Date.now() < parseInt(tokenExpiry));
-        
-        if (isAuthed) {
-          router.push('/'); // Redirect to home if already authenticated
-        }
-      } catch (error) {
-        console.error('Auth check failed:', error);
-      }
-    };
-
-    checkAuthStatus();
-  }, [router]);
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
 
     try {
-      const tokens = await login(email, password);
-      
-      // Store tokens
-      localStorage.setItem('accessToken', tokens.accessToken);
-      localStorage.setItem('idToken', tokens.idToken);
-      localStorage.setItem('refreshToken', tokens.refreshToken);
-      
-      // Set token expiry (1 hour from now)
-      const expiry = Date.now() + (60 * 60 * 1000);
-      localStorage.setItem('tokenExpiry', expiry.toString());
-      
+      await login(email, password);
       router.push('/dashboard');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred during login');

@@ -3,9 +3,10 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { signup, verifyEmail } from '@/services/api';
+import { useAuthStore } from '@/store/auth.store';
+import { withAuthRedirect } from '@/components/withAuthRedirect';
 
-export default function SignUpPage() {
+function SignUpPage() {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -13,13 +14,15 @@ export default function SignUpPage() {
   const [showVerification, setShowVerification] = useState(false);
   const [verificationCode, setVerificationCode] = useState('');
 
+  const { signup, verifyEmail } = useAuthStore();
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
 
     try {
       await signup(email, password);
-      setShowVerification(true); // Show verification code input
+      setShowVerification(true);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred during signup');
     }
@@ -144,3 +147,5 @@ export default function SignUpPage() {
     </div>
   );
 }
+
+export default withAuthRedirect(SignUpPage);

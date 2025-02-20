@@ -2,45 +2,26 @@
 
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
+import { useAuthStore } from '@/store/auth.store';
 
 export default function Header() {
   const router = useRouter();
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const { isAuthenticated, logout, initializeFromStorage } = useAuthStore();
 
   useEffect(() => {
-    const checkAuthStatus = () => {
-      const token = localStorage.getItem('accessToken');
-      const tokenExpiry = localStorage.getItem('tokenExpiry');
-      const isAuthed = Boolean(token && tokenExpiry && Date.now() < parseInt(tokenExpiry));
-      setIsAuthenticated(isAuthed);
-    };
+    initializeFromStorage();
+  }, [initializeFromStorage]);
 
-    // Check initially
-    checkAuthStatus();
-
-    // Add event listener for storage changes
-    window.addEventListener('storage', checkAuthStatus);
-
-    return () => {
-      window.removeEventListener('storage', checkAuthStatus);
-    };
-  }, []);
-
-  const handleSignOut = async () => {
-    // Clear auth tokens
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('idToken');
-    localStorage.removeItem('refreshToken');
-    localStorage.removeItem('tokenExpiry');
-    setIsAuthenticated(false);
+  const handleSignOut = () => {
+    logout();
     router.push('/login');
   };
 
   const title = 'Home Energy Monitoring App';
 
   return (
-    <header className="w-full bg-white shadow-sm">
+    <header className="w-full bg-white shadow-md fixed top-0 z-50">
       <div className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo/Brand */}
