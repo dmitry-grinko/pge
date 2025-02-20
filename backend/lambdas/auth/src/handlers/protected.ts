@@ -2,7 +2,7 @@ import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { validateToken } from '../middleware/validateToken';
 import { corsHeaders } from '../utils/cors';
 
-export async function protectedHandler(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
+export const protectedHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {
     // Validate JWT token
     const authenticatedEvent = await validateToken(event);

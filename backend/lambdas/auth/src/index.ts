@@ -1,23 +1,21 @@
-import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
+import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from 'aws-lambda';
 import { CognitoService } from './services/cognito';
-import { LoginData, SignupData, VerifyEmailData, AuthError } from './types';
-import { protectedHandler } from './handlers/protected';
+import { LoginData, SignupData, VerifyEmailData } from './types';
 
 const corsHeaders = {
-  'Access-Control-Allow-Origin': 'https://pge.dmitrygrinko.com',
+  'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'POST,GET,OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type,Authorization,X-Amz-Date,X-Api-Key,X-Amz-Security-Token,X-Requested-With',
-  'Access-Control-Allow-Credentials': 'true',
-  'Access-Control-Max-Age': '300',
+  'Access-Control-Allow-Headers': 'Content-Type,Authorization',
+  'Access-Control-Allow-Credentials': 'true'
 };
 
-const handleLogin = async (data: LoginData): Promise<APIGatewayProxyResult> => {
+const handleLogin = async (data: LoginData): Promise<APIGatewayProxyResultV2> => {
   try {
     const tokens = await CognitoService.login(data.email, data.password);
     return {
       statusCode: 200,
       headers: corsHeaders,
-      body: JSON.stringify(tokens),
+      body: JSON.stringify(tokens)
     };
   } catch (error) {
     return {
@@ -25,12 +23,12 @@ const handleLogin = async (data: LoginData): Promise<APIGatewayProxyResult> => {
       headers: corsHeaders,
       body: JSON.stringify({ 
         message: error instanceof Error ? error.message : 'Login failed' 
-      }),
+      })
     };
   }
 };
 
-const handleSignup = async (data: SignupData): Promise<APIGatewayProxyResult> => {
+const handleSignup = async (data: SignupData): Promise<APIGatewayProxyResultV2> => {
   try {
     await CognitoService.signUp(data.email, data.password);
     return {
@@ -38,7 +36,7 @@ const handleSignup = async (data: SignupData): Promise<APIGatewayProxyResult> =>
       headers: corsHeaders,
       body: JSON.stringify({ 
         message: 'User created. Please check your email for verification code.' 
-      }),
+      })
     };
   } catch (error) {
     return {
@@ -46,12 +44,12 @@ const handleSignup = async (data: SignupData): Promise<APIGatewayProxyResult> =>
       headers: corsHeaders,
       body: JSON.stringify({ 
         message: error instanceof Error ? error.message : 'Signup failed' 
-      }),
+      })
     };
   }
 };
 
-const handleVerifyEmail = async (data: VerifyEmailData): Promise<APIGatewayProxyResult> => {
+const handleVerifyEmail = async (data: VerifyEmailData): Promise<APIGatewayProxyResultV2> => {
   try {
     await CognitoService.verifyEmail(data.email, data.code);
     return {
@@ -72,72 +70,34 @@ const handleVerifyEmail = async (data: VerifyEmailData): Promise<APIGatewayProxy
   }
 };
 
-export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-  // Handle OPTIONS requests
+export const handler = async (event: APIGatewayProxyEventV2): Promise<APIGatewayProxyResultV2> => {
   if (event.requestContext.http.method === 'OPTIONS') {
-    return {
-      statusCode: 200,
-      headers: {
-        'Access-Control-Allow-Origin': 'https://pge.dmitrygrinko.com',
-        'Access-Control-Allow-Headers': 'Content-Type,Authorization,X-Amz-Date,X-Api-Key,X-Amz-Security-Token,X-Requested-With',
-        'Access-Control-Allow-Methods': 'POST,GET,OPTIONS,PUT,DELETE',
-        'Access-Control-Allow-Credentials': 'true',
-        'Access-Control-Expose-Headers': 'Access-Control-Allow-Origin,Access-Control-Allow-Methods,Access-Control-Allow-Headers'
-      },
-      body: ''
-    };
+    return { statusCode: 200, headers: corsHeaders, body: '' };
   }
 
-  const headers = {
-    'Content-Type': 'application/json'
-  };
-
   try {
-    const path = event.path;
     const body = event.body ? JSON.parse(event.body) : {};
 
-    switch (path) {
+    switch (event.rawPath) {
       case '/auth/login':
         return await handleLogin(body);
       case '/auth/signup':
         return await handleSignup(body);
       case '/auth/verify':
         return await handleVerifyEmail(body);
-      case '/auth/me':
-        return await protectedHandler(event);
       default:
         return {
           statusCode: 404,
-          headers,
+          headers: corsHeaders,
           body: JSON.stringify({ message: 'Not Found' })
         };
     }
   } catch (error) {
-    console.error('Error:', error);
-    
-    // Type guard for AuthError
-    const isAuthError = (err: unknown): err is AuthError => {
-      return err instanceof Error && 'code' in err;
-    };
-
-    // Handle known errors
-    if (isAuthError(error)) {
-      return {
-        statusCode: 400,
-        headers,
-        body: JSON.stringify({
-          message: error.message,
-          code: error.code
-        })
-      };
-    }
-
-    // Handle unexpected errors
     return {
       statusCode: 500,
-      headers,
+      headers: corsHeaders,
       body: JSON.stringify({
-        message: 'Internal Server Error'
+        message: error instanceof Error ? error.message : 'Internal Server Error'
       })
     };
   }
