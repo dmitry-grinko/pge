@@ -38,7 +38,7 @@ export async function login(email: string, password: string): Promise<AuthTokens
 
 export async function signup(email: string, password: string): Promise<ApiResponse> {
     try {
-        const { data } = await api.post<ApiResponse>('/auth/signup', { email, password });
+        const { data } = await api.post<ApiResponse>('/auth/sign-up', { email, password });
         return data;
     } catch (error) {
         if (axios.isAxiosError(error)) {
