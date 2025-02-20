@@ -113,7 +113,9 @@ jobs:
 
       - name: Terraform Plan
         working-directory: terraform
-        run: terraform plan -out=plan.tfplan
+        run: |
+          rm -f plan.tfplan
+          terraform plan -out=plan.tfplan
 
       - name: Terraform Show
         working-directory: terraform
