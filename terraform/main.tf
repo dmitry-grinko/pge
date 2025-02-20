@@ -56,6 +56,14 @@ resource "aws_route53_record" "static_website" {
   }
 }
 
+# Cognito
+
+module "cognito" {
+  source = "./modules/cognito"
+  tags   = local.tags
+}
+
+
 
 # Lambdas
 
@@ -69,6 +77,13 @@ module "lambda" {
   log_retention_days = 14
   filename           = "../backend/lambdas/auth/lambda-auth.zip"
   tags               = local.tags
+  
+  environment_variables = {
+    COGNITO_USER_POOL_ID = module.cognito.user_pool_id
+    COGNITO_CLIENT_ID    = module.cognito.client_id
+  }
+
+  depends_on = [module.cognito]
 }
 
 module "api_gateway" {

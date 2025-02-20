@@ -104,11 +104,11 @@ export const handler = async (
     console.log("body", body);
 
     switch (path) {
-      case '/auth/login':
+      case '/dev/auth/login':
         return await handleLogin(body);
-      case '/auth/signup':
+      case '/dev/auth/signup':
         return await handleSignup(body);
-      case '/auth/verify':
+      case '/dev/auth/verify':
         return await handleVerifyEmail(body);
       default:
         return {

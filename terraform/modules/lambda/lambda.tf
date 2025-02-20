@@ -10,4 +10,8 @@ resource "aws_lambda_function" "function" {
   package_type     = "Zip"
 
   tags = var.tags
+
+  environment {
+    variables = var.environment_variables
+  }
 }

@@ -15,6 +15,10 @@ const CLIENT_ID = process.env.COGNITO_CLIENT_ID!;
 console.log('USER_POOL_ID', USER_POOL_ID);
 console.log('CLIENT_ID', CLIENT_ID);
 
+if (!USER_POOL_ID || !CLIENT_ID) {
+  throw new Error('COGNITO_USER_POOL_ID or COGNITO_CLIENT_ID is not set');
+}
+
 export class CognitoService {
   static async signUp(email: string, password: string): Promise<void> {
     try {

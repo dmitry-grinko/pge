@@ -32,3 +32,9 @@ variable "tags" {
   type        = map(string)
   description = "Tags to apply to resources"
 }
+
+variable "environment_variables" {
+  description = "Environment variables for the Lambda function"
+  type        = map(string)
+  default     = {}
+}
