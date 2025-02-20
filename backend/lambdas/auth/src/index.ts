@@ -73,18 +73,24 @@ const handleVerifyEmail = async (data: VerifyEmailData): Promise<APIGatewayProxy
 };
 
 export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-  const headers = {
-    'Content-Type': 'application/json'
-  };
-
-  // Handle OPTIONS requests with a simple 200 response
-  if (event.httpMethod === 'OPTIONS') {
+  // Handle OPTIONS requests
+  if (event.requestContext.http.method === 'OPTIONS') {
     return {
       statusCode: 200,
-      headers,
+      headers: {
+        'Access-Control-Allow-Origin': 'https://pge.dmitrygrinko.com',
+        'Access-Control-Allow-Headers': 'Content-Type,Authorization,X-Amz-Date,X-Api-Key,X-Amz-Security-Token,X-Requested-With',
+        'Access-Control-Allow-Methods': 'POST,GET,OPTIONS,PUT,DELETE',
+        'Access-Control-Allow-Credentials': 'true',
+        'Access-Control-Expose-Headers': 'Access-Control-Allow-Origin,Access-Control-Allow-Methods,Access-Control-Allow-Headers'
+      },
       body: ''
     };
   }
+
+  const headers = {
+    'Content-Type': 'application/json'
+  };
 
   try {
     const path = event.path;

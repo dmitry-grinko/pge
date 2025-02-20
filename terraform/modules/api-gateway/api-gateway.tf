@@ -74,28 +74,28 @@ resource "aws_apigatewayv2_route" "forgot_password" {
 resource "aws_apigatewayv2_route" "login_options" {
   api_id = aws_apigatewayv2_api.main.id
   route_key = "OPTIONS /auth/login"
-  target    = "integrations/${aws_apigatewayv2_integration.options_mock.id}"
+  target    = "integrations/${aws_apigatewayv2_integration.lambda.id}"
   authorization_type = "NONE"
 }
 
 resource "aws_apigatewayv2_route" "signup_options" {
   api_id = aws_apigatewayv2_api.main.id
   route_key = "OPTIONS /auth/signup"
-  target    = "integrations/${aws_apigatewayv2_integration.options_mock.id}"
+  target    = "integrations/${aws_apigatewayv2_integration.lambda.id}"
   authorization_type = "NONE"
 }
 
 resource "aws_apigatewayv2_route" "forgot_password_options" {
   api_id = aws_apigatewayv2_api.main.id
   route_key = "OPTIONS /auth/forgot-password"
-  target    = "integrations/${aws_apigatewayv2_integration.options_mock.id}"
+  target    = "integrations/${aws_apigatewayv2_integration.lambda.id}"
   authorization_type = "NONE"
 }
 
 resource "aws_apigatewayv2_route" "options_default" {
   api_id = aws_apigatewayv2_api.main.id
   route_key = "OPTIONS /{proxy+}"
-  target    = "integrations/${aws_apigatewayv2_integration.options_mock.id}"
+  target    = "integrations/${aws_apigatewayv2_integration.lambda.id}"
   authorization_type = "NONE"
 }
 
@@ -105,17 +105,4 @@ resource "aws_lambda_permission" "api_gw" {
   function_name = var.lambda_function_name
   principal     = "apigateway.amazonaws.com"
   source_arn = "${aws_apigatewayv2_api.main.execution_arn}/*/*"
-}
-
-resource "aws_apigatewayv2_integration" "options_mock" {
-  api_id = aws_apigatewayv2_api.main.id
-  
-  integration_type   = "MOCK"
-  integration_method = "OPTIONS"
-  
-  request_templates = {
-    "application/json" = "{\"statusCode\": 200}"
-  }
-
-  payload_format_version = "2.0"
 } 
