@@ -12,8 +12,10 @@ export function withAuth<P extends object>(Component: ComponentType<P>) {
     useEffect(() => {
       const checkAuth = async () => {
         try {
-          // Check if user is authenticated (implement your auth check logic here)
-          const isAuthed = /* your auth check logic */;
+          // Check if user is authenticated by verifying token exists and is not expired
+          const token = localStorage.getItem('accessToken');
+          const tokenExpiry = localStorage.getItem('tokenExpiry');
+          const isAuthed = token && tokenExpiry && Date.now() < parseInt(tokenExpiry);
           setIsAuthenticated(isAuthed);
 
           // If not authenticated, redirect to login

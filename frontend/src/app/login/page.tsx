@@ -22,8 +22,10 @@ function LoginContent() {
   useEffect(() => {
     const checkAuthStatus = async () => {
       try {
-        // Check if user is already authenticated
-        const isAuthed = /* your auth check logic */;
+        // Check if user is already authenticated by verifying token exists and is not expired
+        const token = localStorage.getItem('accessToken');
+        const tokenExpiry = localStorage.getItem('tokenExpiry');
+        const isAuthed = token && tokenExpiry && Date.now() < parseInt(tokenExpiry);
         
         if (isAuthed) {
           router.push('/'); // Redirect to home if already authenticated
