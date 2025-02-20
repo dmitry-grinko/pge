@@ -1,12 +1,13 @@
 'use client';
-import { useRouter } from 'next/navigation';
+
 import { useEffect, ComponentType, useState } from 'react';
 import { AlreadyLoggedInPopup } from './AlreadyLoggedInPopup';
 import { useAuthStore } from '@/store/auth.store';
+import { useRouting } from '@/hooks/useRouting';
 
 export function withAuthRedirect<P extends object>(Component: ComponentType<P>) {
   return function WrappedComponent(props: P) {
-    const router = useRouter();
+    const { navigate } = useRouting();
     const [isLoading, setIsLoading] = useState(true);
     const [showPopup, setShowPopup] = useState(false);
     const { checkAuth, logout, initializeFromStorage } = useAuthStore();
@@ -14,11 +15,13 @@ export function withAuthRedirect<P extends object>(Component: ComponentType<P>) 
     useEffect(() => {
       const checkAuthStatus = async () => {
         try {
-          initializeFromStorage();
-          const isAuthed = checkAuth();
+          if (typeof window !== 'undefined') {
+            initializeFromStorage();
+            const isAuthed = checkAuth();
 
-          if (isAuthed) {
-            router.push('/dashboard'); // Redirect to dashboard if already authenticated
+            if (isAuthed) {
+              setShowPopup(true);
+            }
           }
         } catch (error) {
           console.error('Auth check failed:', error);
@@ -28,11 +31,16 @@ export function withAuthRedirect<P extends object>(Component: ComponentType<P>) 
       };
 
       checkAuthStatus();
-    }, [router, checkAuth, initializeFromStorage]);
+    }, [checkAuth, initializeFromStorage]);
 
     const handleSignOut = () => {
       logout();
       setShowPopup(false);
+    };
+
+    const handleCancel = () => {
+      setShowPopup(false);
+      navigate('/dashboard');
     };
 
     if (isLoading) {
@@ -40,7 +48,7 @@ export function withAuthRedirect<P extends object>(Component: ComponentType<P>) 
     }
 
     if (showPopup) {
-      return <AlreadyLoggedInPopup onSignOut={handleSignOut} />;
+      return <AlreadyLoggedInPopup onSignOut={handleSignOut} onCancel={handleCancel} />;
     }
 
     return <Component {...props} />;

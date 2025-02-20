@@ -1,21 +1,22 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useEffect } from 'react';
 import { useAuthStore } from '@/store/auth.store';
+import { useRouting } from '@/hooks/useRouting';
 
 export default function Header() {
-  const router = useRouter();
+  const { navigate } = useRouting();
   const { isAuthenticated, logout, initializeFromStorage } = useAuthStore();
 
   useEffect(() => {
     initializeFromStorage();
   }, [initializeFromStorage]);
 
-  const handleSignOut = () => {
+  const handleSignOut = async (e: React.MouseEvent) => {
+    e.preventDefault();
     logout();
-    router.push('/login');
+    await navigate('/login');
   };
 
   const title = 'Home Energy Monitoring App';

@@ -1,14 +1,13 @@
 'use client';
 
-import { useState, useEffect, Suspense } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useAuthStore } from '@/store/auth.store';
 import { withAuthRedirect } from '@/components/withAuthRedirect';
+import { useRouting } from '@/hooks/useRouting';
 
 function LoginContent() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
+  const { navigate, query } = useRouting();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -17,10 +16,10 @@ function LoginContent() {
   const { login } = useAuthStore();
 
   useEffect(() => {
-    if (searchParams?.get('verified') === 'true') {
+    if (query.verified === 'true') {
       setSuccess('Email verified successfully! You can now log in.');
     }
-  }, [searchParams]);
+  }, [query]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,7 +27,7 @@ function LoginContent() {
 
     try {
       await login(email, password);
-      router.push('/dashboard');
+      navigate('/dashboard');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred during login');
     }
@@ -117,12 +116,4 @@ function LoginContent() {
   );
 }
 
-function LoginPage() {
-  return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <LoginContent />
-    </Suspense>
-  );
-}
-
-export default withAuthRedirect(LoginPage);
+export default withAuthRedirect(LoginContent);

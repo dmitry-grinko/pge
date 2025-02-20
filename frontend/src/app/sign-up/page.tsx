@@ -1,13 +1,13 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuthStore } from '@/store/auth.store';
 import { withAuthRedirect } from '@/components/withAuthRedirect';
+import { useRouting } from '@/hooks/useRouting';
 
 function SignUpPage() {
-  const router = useRouter();
+  const { navigate } = useRouting();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -34,7 +34,7 @@ function SignUpPage() {
 
     try {
       await verifyEmail(email, verificationCode);
-      router.push('/login?verified=true');
+      navigate('/login?verified=true');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Verification failed');
     }
