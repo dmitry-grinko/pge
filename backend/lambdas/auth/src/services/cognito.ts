@@ -9,8 +9,11 @@ import { AuthError, CognitoTokens } from '../types';
 
 const cognitoClient = new CognitoIdentityProviderClient({});
 
-// const USER_POOL_ID = process.env.COGNITO_USER_POOL_ID!;
+const USER_POOL_ID = process.env.COGNITO_USER_POOL_ID!;
 const CLIENT_ID = process.env.COGNITO_CLIENT_ID!;
+
+console.log('USER_POOL_ID', USER_POOL_ID);
+console.log('CLIENT_ID', CLIENT_ID);
 
 export class CognitoService {
   static async signUp(email: string, password: string): Promise<void> {
