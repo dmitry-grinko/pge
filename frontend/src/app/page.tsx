@@ -5,7 +5,7 @@ export default function Home() {
       <section className="container mx-auto px-4 pt-24 pb-16">
         <div className="max-w-2xl mx-auto text-center">
           <h1 className="text-4xl font-bold text-gray-900 mb-6">
-            Smart Energy Monitoring for Your Home
+            Smart Energy Monitoring for Your Home. v1
           </h1>
           <p className="text-lg text-gray-600">
             Track and optimize your energy consumption with data-driven insights

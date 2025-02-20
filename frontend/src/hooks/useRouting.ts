@@ -1,8 +1,6 @@
-import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 
 export function useRouting() {
-  const [isReady, setIsReady] = useState(true); // Start with true for static export
   const [pathname, setPathname] = useState('/');
 
   useEffect(() => {
@@ -10,14 +8,25 @@ export function useRouting() {
     setPathname(window.location.pathname);
   }, []);
 
-  const navigate = async (path: string) => {
+  const navigate = (path: string) => {
     window.location.href = path;
   };
 
+  // Parse query params from URL
+  const getQueryParams = () => {
+    if (typeof window === 'undefined') return {};
+    const params = new URLSearchParams(window.location.search);
+    const query: Record<string, string> = {};
+    params.forEach((value, key) => {
+      query[key] = value;
+    });
+    return query;
+  };
+
   return {
-    isReady,
+    isReady: true, // Always true for static export
     navigate,
     pathname,
-    query: {} // Static export doesn't need query params
+    query: getQueryParams()
   };
 } 
