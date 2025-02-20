@@ -6,3 +6,5 @@ terraform/variables.tfvars
 .env
 node_modules
 .DS_Store
+
+frontend_v1

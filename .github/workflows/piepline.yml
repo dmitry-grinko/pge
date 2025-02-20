@@ -147,10 +147,10 @@ jobs:
         working-directory: frontend
         run: npm ci
 
-      - name: Build Next.js application
+      - name: Build Angular application
         working-directory: frontend
         env:
-          NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL }}
+          API_URL: ${{ secrets.API_URL }}
         run: npm run build
 
       - name: Configure AWS Credentials
@@ -162,7 +162,7 @@ jobs:
 
       - name: Deploy to S3
         run: |
-          aws s3 sync frontend/out s3://${{ env.TF_VAR_bucket-name }}/ \
+          aws s3 sync frontend/dist/frontend s3://${{ env.TF_VAR_bucket-name }}/ \
             --delete \
             --cache-control "max-age=3600"
 
