@@ -35,12 +35,20 @@ export default function Header() {
           {/* Navigation */}
           <nav className="flex gap-4">
             {isAuthenticated ? (
-              <button
-                onClick={handleSignOut}
-                className="inline-flex items-center justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
-              >
-                Sign out
-              </button>
+              <>
+                <Link
+                  href="/dashboard"
+                  className="inline-flex items-center justify-center py-2 px-4 border border-blue-600 text-sm font-medium rounded-md text-blue-600 bg-white hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+                >
+                  Dashboard
+                </Link>
+                <button
+                  onClick={handleSignOut}
+                  className="inline-flex items-center justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+                >
+                  Sign out
+                </button>
+              </>
             ) : (
               <>
                 <Link
