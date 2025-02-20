@@ -1,16 +1,15 @@
 import { 
-  CognitoJwtVerifier, 
-  CognitoJwtPayload 
-} from "@aws-jwt-verify/cognito-jwt-verifier";
+  CognitoJwtVerifier 
+} from "aws-jwt-verify";
 import { APIGatewayProxyEvent } from 'aws-lambda';
 
 const USER_POOL_ID = process.env.COGNITO_USER_POOL_ID!;
 const CLIENT_ID = process.env.COGNITO_CLIENT_ID!;
 
-const verifier = new CognitoJwtVerifier({
+const verifier = CognitoJwtVerifier.create({
   userPoolId: USER_POOL_ID,
-  clientId: CLIENT_ID,
   tokenUse: "access",
+  clientId: CLIENT_ID,
 });
 
 export interface AuthenticatedEvent extends APIGatewayProxyEvent {
@@ -29,12 +28,12 @@ export async function validateToken(event: APIGatewayProxyEvent): Promise<Authen
 
   const token = auth.replace('Bearer ', '');
   try {
-    const payload = await verifier.verify(token) as CognitoJwtPayload;
+    const payload = await verifier.verify(token);
     return {
       ...event,
       user: {
         sub: payload.sub,
-        email: payload['email'],
+        email: payload.email as string,
       },
     };
   } catch (error) {
