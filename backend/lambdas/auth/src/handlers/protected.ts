@@ -1,5 +1,5 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
-import { validateToken, AuthenticatedEvent } from '../middleware/validateToken';
+import { validateToken } from '../middleware/validateToken';
 import { corsHeaders } from '../utils/cors';
 
 export async function protectedHandler(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
