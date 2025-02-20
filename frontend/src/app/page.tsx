@@ -1,6 +1,3 @@
-import Link from "next/link";
-import { FaSolarPanel, FaFileUpload, FaChartLine, FaBell } from 'react-icons/fa';
-
 export default function Home() {
   return (
     <div className="min-h-screen bg-white">
