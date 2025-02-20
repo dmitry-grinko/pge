@@ -1,12 +1,3 @@
-// Define response types for better type safety
-interface AuthResponse {
-    token: string;
-    user: {
-        id: string;
-        email: string;
-    };
-}
-
 interface AuthTokens {
   accessToken: string;
   idToken: string;
