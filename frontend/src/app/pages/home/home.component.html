@@ -1,10 +1,243 @@
-<div class="row">
-  <div class="col-12 text-center">
-    <h1 class="display-4">Welcome to Our App</h1>
-    <p class="lead">This is a simple authentication demo application.</p>
-    <div class="mt-4">
-      <a routerLink="/auth/login" class="btn btn-primary me-2">Login</a>
-      <a routerLink="/auth/signup" class="btn btn-outline-primary">Sign Up</a>
+<div class="container py-5">
+  <!-- Header Section -->
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <header class="text-center mb-5">
+        <i class="bi bi-house-heart-fill text-primary display-1 mb-3"></i>
+        <h1 class="display-3 fw-bold text-primary">Home Energy Monitor</h1>
+        <p class="lead fs-3 text-secondary">Track, Analyze, and Optimize Your Energy Usage</p>
+        <button 
+          class="btn btn-primary btn-lg mt-3 px-5 py-3 rounded-pill shadow-sm"
+          (click)="navigateToApp()">
+          <i class="bi bi-arrow-right-circle-fill me-2"></i>
+          Get Started
+        </button>
+      </header>
+    </div>
+  </div>
+
+  <!-- Introduction -->
+  <div class="row justify-content-center mb-5">
+    <div class="col-lg-8">
+      <div class="card shadow-sm border-0 p-4">
+        <div class="text-center mb-3">
+          <i class="bi bi-lightbulb-fill text-warning display-4"></i>
+        </div>
+        <p class="lead mb-0">
+          The Home Energy Monitor app helps users track their energy consumption, manually input data, 
+          upload CSV files, and receive alerts when their energy usage exceeds predefined thresholds. 
+          The goal is to provide users with insights into their energy consumption and encourage smarter energy usage.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Features Section -->
+  <div class="row justify-content-center mb-5">
+    <div class="col-lg-8">
+      <h2 class="text-center mb-4">
+        <i class="bi bi-stars text-primary me-2"></i>Core Features
+      </h2>
+      <div class="row g-4">
+        <div class="col-md-4">
+          <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body text-center">
+              <i class="bi bi-shield-lock-fill text-primary display-5 mb-3"></i>
+              <h3 class="h5 card-title">Secure Authentication</h3>
+              <p class="card-text">Protected access using AWS Cognito authentication services</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body text-center">
+              <i class="bi bi-database-fill-gear text-primary display-5 mb-3"></i>
+              <h3 class="h5 card-title">Data Management</h3>
+              <p class="card-text">Manual data entry and bulk CSV uploads for historical data</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body text-center">
+              <i class="bi bi-bell-fill text-primary display-5 mb-3"></i>
+              <h3 class="h5 card-title">Smart Alerts</h3>
+              <p class="card-text">Real-time notifications via AWS SNS when usage exceeds thresholds</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Technology Stack -->
+  <div class="row justify-content-center mb-5">
+    <div class="col-lg-8">
+      <h2 class="text-center mb-4">
+        <i class="bi bi-stack text-primary me-2"></i>Technology Stack
+      </h2>
+      <div class="row g-4">
+        <!-- Cloud Infrastructure -->
+        <div class="col-12">
+          <div class="card border-0 shadow-sm">
+            <div class="card-body">
+              <div class="d-flex align-items-center mb-4">
+                <i class="bi bi-cloud-fill text-primary display-5 me-3"></i>
+                <h3 class="h4 mb-0">Cloud Infrastructure</h3>
+              </div>
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <div class="d-flex align-items-center p-3 border rounded bg-light">
+                    <i class="bi bi-lightning-fill text-primary fs-4 me-3"></i>
+                    <div>
+                      <h4 class="h6 mb-1">AWS Lambda</h4>
+                      <p class="mb-0 small text-muted">Serverless Computing</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="d-flex align-items-center p-3 border rounded bg-light">
+                    <i class="bi bi-database-fill text-primary fs-4 me-3"></i>
+                    <div>
+                      <h4 class="h6 mb-1">DynamoDB</h4>
+                      <p class="mb-0 small text-muted">NoSQL Database</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="d-flex align-items-center p-3 border rounded bg-light">
+                    <i class="bi bi-diagram-2-fill text-primary fs-4 me-3"></i>
+                    <div>
+                      <h4 class="h6 mb-1">API Gateway</h4>
+                      <p class="mb-0 small text-muted">RESTful Endpoints</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="d-flex align-items-center p-3 border rounded bg-light">
+                    <i class="bi bi-globe text-primary fs-4 me-3"></i>
+                    <div>
+                      <h4 class="h6 mb-1">CloudFront</h4>
+                      <p class="mb-0 small text-muted">Global Content Delivery</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="d-flex align-items-center p-3 border rounded bg-light">
+                    <i class="bi bi-folder-fill text-primary fs-4 me-3"></i>
+                    <div>
+                      <h4 class="h6 mb-1">S3</h4>
+                      <p class="mb-0 small text-muted">Static and Data Storage</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="d-flex align-items-center p-3 border rounded bg-light">
+                    <i class="bi bi-shield-fill-check text-primary fs-4 me-3"></i>
+                    <div>
+                      <h4 class="h6 mb-1">AWS Cognito</h4>
+                      <p class="mb-0 small text-muted">Authentication Service</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="d-flex align-items-center p-3 border rounded bg-light">
+                    <i class="bi bi-bell-fill text-primary fs-4 me-3"></i>
+                    <div>
+                      <h4 class="h6 mb-1">AWS SNS</h4>
+                      <p class="mb-0 small text-muted">Notification Service</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- DevOps & Infrastructure -->
+        <div class="col-12">
+          <div class="card border-0 shadow-sm">
+            <div class="card-body">
+              <div class="d-flex align-items-center mb-4">
+                <i class="bi bi-gear-fill text-success display-5 me-3"></i>
+                <h3 class="h4 mb-0">DevOps & Infrastructure as Code</h3>
+              </div>
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <div class="d-flex align-items-center p-3 border rounded bg-light">
+                    <i class="bi bi-git text-success fs-4 me-3"></i>
+                    <div>
+                      <h4 class="h6 mb-1">GitHub Actions</h4>
+                      <p class="mb-0 small text-muted">CI/CD Pipeline</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="d-flex align-items-center p-3 border rounded bg-light">
+                    <i class="bi bi-boxes text-success fs-4 me-3"></i>
+                    <div>
+                      <h4 class="h6 mb-1">Terraform</h4>
+                      <p class="mb-0 small text-muted">Infrastructure Management</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Frontend -->
+        <div class="col-12">
+          <div class="card border-0 shadow-sm">
+            <div class="card-body">
+              <div class="d-flex align-items-center mb-4">
+                <i class="bi bi-window-fullscreen text-info display-5 me-3"></i>
+                <h3 class="h4 mb-0">Frontend</h3>
+              </div>
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <div class="d-flex align-items-center p-3 border rounded bg-light">
+                    <i class="bi bi-code-slash text-info fs-4 me-3"></i>
+                    <div>
+                      <h4 class="h6 mb-1">Angular</h4>
+                      <p class="mb-0 small text-muted">Modern Web Framework with REST API Integration</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="d-flex align-items-center p-3 border rounded bg-light">
+                    <i class="bi bi-bootstrap text-info fs-4 me-3"></i>
+                    <div>
+                      <h4 class="h6 mb-1">ng-bootstrap</h4>
+                      <p class="mb-0 small text-muted">UI Components Framework</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- About Creator -->
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <section class="text-center">
+        <h2 class="mb-4">
+          <i class="bi bi-person-circle text-primary me-2"></i>About the Creator
+        </h2>
+        <p class="mb-3">Created by Dmitry Grinko in February 2025</p>
+        <div class="d-flex justify-content-center gap-3">
+          <a href="mailto:{{email}}" class="text-decoration-none">
+            <i class="bi bi-envelope-fill me-1"></i>{{email}}
+          </a>
+          <a href="https://linkedin.com/in/dmitrygrinko" target="_blank" class="text-decoration-none">
+            <i class="bi bi-linkedin me-1"></i>LinkedIn Profile
+          </a>
+        </div>
+      </section>
     </div>
   </div>
 </div>
