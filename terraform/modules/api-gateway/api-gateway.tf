@@ -3,19 +3,24 @@ resource "aws_apigatewayv2_api" "main" {
   protocol_type = "HTTP"
   cors_configuration {
     allow_origins = ["https://pge.dmitrygrinko.com"]
-    allow_methods = ["POST", "GET", "OPTIONS"]
+    allow_methods = ["POST", "GET", "OPTIONS", "PUT", "DELETE"]
     allow_headers = [
       "Content-Type",
       "Authorization",
       "X-Amz-Date",
       "X-Api-Key",
       "X-Amz-Security-Token",
-      "X-Requested-With"
+      "X-Requested-With",
+      "Access-Control-Allow-Origin",
+      "Access-Control-Allow-Methods",
+      "Access-Control-Allow-Headers"
     ]
     allow_credentials = true
     expose_headers = [
       "Access-Control-Allow-Origin",
-      "Access-Control-Allow-Headers"
+      "Access-Control-Allow-Methods",
+      "Access-Control-Allow-Headers",
+      "Access-Control-Allow-Credentials"
     ]
     max_age = 300
   }
@@ -26,6 +31,12 @@ resource "aws_apigatewayv2_stage" "main" {
   api_id = aws_apigatewayv2_api.main.id
   name   = var.environment
   auto_deploy = true
+  
+  default_route_settings {
+    throttling_burst_limit = 5000
+    throttling_rate_limit  = 10000
+  }
+  
   tags = var.tags
 }
 

@@ -19,6 +19,23 @@ function LoginContent() {
     }
   }, [searchParams]);
 
+  useEffect(() => {
+    const checkAuthStatus = async () => {
+      try {
+        // Check if user is already authenticated
+        const isAuthed = /* your auth check logic */;
+        
+        if (isAuthed) {
+          router.push('/'); // Redirect to home if already authenticated
+        }
+      } catch (error) {
+        console.error('Auth check failed:', error);
+      }
+    };
+
+    checkAuthStatus();
+  }, [router]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
