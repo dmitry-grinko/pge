@@ -1,14 +1,22 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { CognitoService } from './services/cognito';
-import { LoginData, SignupData, VerifyEmailData } from './types';
+import { LoginData, SignupData, VerifyEmailData, AuthError } from './types';
 import { protectedHandler } from './handlers/protected';
 
 const corsHeaders = {
-  'Content-Type': 'application/json',
   'Access-Control-Allow-Origin': 'https://pge.dmitrygrinko.com',
-  'Access-Control-Allow-Methods': 'POST, GET, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-  'Access-Control-Allow-Credentials': true,
+  'Access-Control-Allow-Methods': 'POST,GET,OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type,Authorization,X-Amz-Date,X-Api-Key,X-Amz-Security-Token,X-Requested-With',
+  'Access-Control-Allow-Credentials': 'true',
+  'Access-Control-Max-Age': '300',
+};
+
+const handleOptions = () => {
+  return {
+    statusCode: 200,
+    headers: corsHeaders,
+    body: ''
+  };
 };
 
 const handleLogin = async (data: LoginData): Promise<APIGatewayProxyResult> => {
@@ -73,43 +81,66 @@ const handleVerifyEmail = async (data: VerifyEmailData): Promise<APIGatewayProxy
 };
 
 export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-  // Handle OPTIONS requests first
+  const headers = {
+    'Content-Type': 'application/json'
+  };
+
+  // Handle OPTIONS requests with a simple 200 response
   if (event.httpMethod === 'OPTIONS') {
     return {
       statusCode: 200,
-      headers: corsHeaders,
+      headers,
       body: ''
     };
   }
 
   try {
-    const { path, httpMethod, body } = event;
-    const data = JSON.parse(body || '{}');
+    const path = event.path;
+    const body = event.body ? JSON.parse(event.body) : {};
 
-    switch (true) {
-      case path === '/auth/login' && httpMethod === 'POST':
-        return await handleLogin(data);
-      case path === '/auth/signup' && httpMethod === 'POST':
-        return await handleSignup(data);
-      case path === '/auth/verify' && httpMethod === 'POST':
-        return await handleVerifyEmail(data);
-      case path === '/auth/me' && httpMethod === 'GET':
+    switch (path) {
+      case '/auth/login':
+        return await handleLogin(body);
+      case '/auth/signup':
+        return await handleSignup(body);
+      case '/auth/verify':
+        return await handleVerifyEmail(body);
+      case '/auth/me':
         return await protectedHandler(event);
       default:
         return {
           statusCode: 404,
-          headers: corsHeaders,
-          body: JSON.stringify({ message: 'Not found' }),
+          headers,
+          body: JSON.stringify({ message: 'Not Found' })
         };
     }
   } catch (error) {
     console.error('Error:', error);
+    
+    // Type guard for AuthError
+    const isAuthError = (err: unknown): err is AuthError => {
+      return err instanceof Error && 'code' in err;
+    };
+
+    // Handle known errors
+    if (isAuthError(error)) {
+      return {
+        statusCode: 400,
+        headers,
+        body: JSON.stringify({
+          message: error.message,
+          code: error.code
+        })
+      };
+    }
+
+    // Handle unexpected errors
     return {
       statusCode: 500,
-      headers: corsHeaders,
+      headers,
       body: JSON.stringify({
-        message: 'Internal server error',
-      }),
+        message: 'Internal Server Error'
+      })
     };
   }
 };
