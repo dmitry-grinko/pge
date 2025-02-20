@@ -11,14 +11,6 @@ const corsHeaders = {
   'Access-Control-Max-Age': '300',
 };
 
-const handleOptions = () => {
-  return {
-    statusCode: 200,
-    headers: corsHeaders,
-    body: ''
-  };
-};
-
 const handleLogin = async (data: LoginData): Promise<APIGatewayProxyResult> => {
   try {
     const tokens = await CognitoService.login(data.email, data.password);
