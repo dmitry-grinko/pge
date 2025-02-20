@@ -1,3 +1,5 @@
+import axios from 'axios';
+
 interface AuthTokens {
   accessToken: string;
   idToken: string;
@@ -10,50 +12,50 @@ interface ApiResponse {
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
+if (!API_URL) {
+  throw new Error('NEXT_PUBLIC_API_URL is not set');
+}
+
+// Create axios instance with default config
+const api = axios.create({
+  baseURL: API_URL,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
 export async function login(email: string, password: string): Promise<AuthTokens> {
-    const response = await fetch(`${API_URL}/auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-    });
-    
-    if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Login failed');
+    try {
+        const { data } = await api.post<AuthTokens>('/auth/login', { email, password });
+        return data;
+    } catch (error) {
+        if (axios.isAxiosError(error)) {
+            throw new Error(error.response?.data?.message || 'Login failed');
+        }
+        throw error;
     }
-    
-    const tokens = await response.json();
-    return tokens;
 }
 
 export async function signup(email: string, password: string): Promise<ApiResponse> {
-    const response = await fetch(`${API_URL}/auth/signup`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-    });
-    
-    if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Signup failed');
+    try {
+        const { data } = await api.post<ApiResponse>('/auth/signup', { email, password });
+        return data;
+    } catch (error) {
+        if (axios.isAxiosError(error)) {
+            throw new Error(error.response?.data?.message || 'Signup failed');
+        }
+        throw error;
     }
-    
-    return await response.json();
 }
 
 export async function verifyEmail(email: string, code: string): Promise<ApiResponse> {
-  const response = await fetch(`${API_URL}/auth/verify`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ email, code }),
-  });
-
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.message || 'Verification failed');
-  }
-
-  return await response.json();
+    try {
+        const { data } = await api.post<ApiResponse>('/auth/verify', { email, code });
+        return data;
+    } catch (error) {
+        if (axios.isAxiosError(error)) {
+            throw new Error(error.response?.data?.message || 'Verification failed');
+        }
+        throw error;
+    }
 }

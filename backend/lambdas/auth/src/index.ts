@@ -1,11 +1,11 @@
-import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from 'aws-lambda';
+import { APIGatewayProxyEvent, APIGatewayProxyEventV2, APIGatewayProxyResult, APIGatewayProxyResultV2 } from 'aws-lambda';
 import { CognitoService } from './services/cognito';
 import { LoginData, SignupData, VerifyEmailData } from './types';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'POST,GET,OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type,Authorization',
+  "Access-Control-Allow-Headers" : "Content-Type",
   'Access-Control-Allow-Credentials': 'true'
 };
 
@@ -70,15 +70,31 @@ const handleVerifyEmail = async (data: VerifyEmailData): Promise<APIGatewayProxy
   }
 };
 
-export const handler = async (event: APIGatewayProxyEventV2): Promise<APIGatewayProxyResultV2> => {
-  if (event.requestContext.http.method === 'OPTIONS') {
+// Type guard to check if event is V2
+function isV2Event(event: APIGatewayProxyEvent | APIGatewayProxyEventV2): event is APIGatewayProxyEventV2 {
+  return 'requestContext' in event && 'http' in event.requestContext;
+}
+
+export const handler = async (
+  event: APIGatewayProxyEvent | APIGatewayProxyEventV2
+): Promise<APIGatewayProxyResult | APIGatewayProxyResultV2> => {
+  // Determine HTTP method and path based on event version
+  const httpMethod = isV2Event(event) 
+    ? event.requestContext.http.method 
+    : event.httpMethod;
+
+  const path = isV2Event(event) 
+    ? event.rawPath 
+    : event.path;
+
+  if (httpMethod === 'OPTIONS') {
     return { statusCode: 200, headers: corsHeaders, body: '' };
   }
 
   try {
     const body = event.body ? JSON.parse(event.body) : {};
 
-    switch (event.rawPath) {
+    switch (path) {
       case '/auth/login':
         return await handleLogin(body);
       case '/auth/signup':
