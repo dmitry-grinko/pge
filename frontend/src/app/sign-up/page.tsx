@@ -4,10 +4,10 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useAuthStore } from '@/store/auth.store';
 import { withAuthRedirect } from '@/components/withAuthRedirect';
-import { useRouting } from '@/hooks/useRouting';
+import { useRoutingStore } from '@/store/routing.store';
 
 function SignUpPage() {
-  const { navigate } = useRouting();
+  const { navigate } = useRoutingStore();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');

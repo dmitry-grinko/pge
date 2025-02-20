@@ -27,7 +27,10 @@ function LoginContent() {
 
     try {
       await login(email, password);
-      navigate('/dashboard');
+      // Check for stored redirect URL
+      const redirectUrl = sessionStorage.getItem('redirectUrl') || '/dashboard';
+      sessionStorage.removeItem('redirectUrl');
+      window.location.href = redirectUrl; // Use full page reload for auth state
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred during login');
     }
