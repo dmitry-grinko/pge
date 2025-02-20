@@ -7,7 +7,7 @@ import { useRoutingStore } from '@/store/routing.store';
 
 export function withAuthRedirect<P extends object>(Component: ComponentType<P>) {
   return function WrappedComponent(props: P) {
-    const { pathname, navigate } = useRoutingStore();
+    const { navigate } = useRoutingStore();
     const [showPopup, setShowPopup] = useState(false);
     const { checkAuth, logout, initializeFromStorage } = useAuthStore();
 

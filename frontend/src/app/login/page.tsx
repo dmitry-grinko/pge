@@ -7,7 +7,7 @@ import { withAuthRedirect } from '@/components/withAuthRedirect';
 import { useRouting } from '@/hooks/useRouting';
 
 function LoginContent() {
-  const { navigate, query } = useRouting();
+  const { query } = useRouting();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
