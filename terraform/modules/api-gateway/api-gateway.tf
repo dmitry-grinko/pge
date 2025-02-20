@@ -1,6 +1,13 @@
 resource "aws_apigatewayv2_api" "main" {
   name          = var.name
   protocol_type = "HTTP"
+  cors_configuration {
+    allow_origins = ["https://pge.dmitrygrinko.com"]
+    allow_methods = ["POST", "GET", "OPTIONS"]
+    allow_headers = ["Content-Type", "Authorization"]
+    allow_credentials = true
+    max_age = 300
+  }
   tags = var.tags
 }
 
@@ -34,6 +41,24 @@ resource "aws_apigatewayv2_route" "signup" {
 resource "aws_apigatewayv2_route" "forgot_password" {
   api_id = aws_apigatewayv2_api.main.id
   route_key = "POST /auth/forgot-password"
+  target    = "integrations/${aws_apigatewayv2_integration.lambda.id}"
+}
+
+resource "aws_apigatewayv2_route" "login_options" {
+  api_id = aws_apigatewayv2_api.main.id
+  route_key = "OPTIONS /auth/login"
+  target    = "integrations/${aws_apigatewayv2_integration.lambda.id}"
+}
+
+resource "aws_apigatewayv2_route" "signup_options" {
+  api_id = aws_apigatewayv2_api.main.id
+  route_key = "OPTIONS /auth/signup"
+  target    = "integrations/${aws_apigatewayv2_integration.lambda.id}"
+}
+
+resource "aws_apigatewayv2_route" "forgot_password_options" {
+  api_id = aws_apigatewayv2_api.main.id
+  route_key = "OPTIONS /auth/forgot-password"
   target    = "integrations/${aws_apigatewayv2_integration.lambda.id}"
 }
 

@@ -5,7 +5,9 @@ import { protectedHandler } from './handlers/protected';
 
 const corsHeaders = {
   'Content-Type': 'application/json',
-  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Origin': 'https://pge.dmitrygrinko.com',
+  'Access-Control-Allow-Methods': 'POST, GET, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
   'Access-Control-Allow-Credentials': true,
 };
 
@@ -71,6 +73,15 @@ const handleVerifyEmail = async (data: VerifyEmailData): Promise<APIGatewayProxy
 };
 
 export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+  // Handle OPTIONS requests first
+  if (event.httpMethod === 'OPTIONS') {
+    return {
+      statusCode: 200,
+      headers: corsHeaders,
+      body: ''
+    };
+  }
+
   try {
     const { path, httpMethod, body } = event;
     const data = JSON.parse(body || '{}');
