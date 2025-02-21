@@ -1,0 +1,25 @@
+<div class="file-upload-container">
+  <h3>File Upload</h3>
+  
+  <div class="upload-section">
+    <div class="mb-3">
+      <input 
+        type="file" 
+        class="form-control" 
+        (change)="onFileSelected($event)"
+        accept=".csv,.xlsx,.xls">
+      <small class="text-muted">Supported formats: CSV, Excel (.xlsx, .xls)</small>
+    </div>
+
+    <button 
+      class="btn btn-primary" 
+      [disabled]="!selectedFile"
+      (click)="onUpload()">
+      Upload File
+    </button>
+  </div>
+
+  <div class="selected-file mt-3" *ngIf="selectedFile">
+    <p>Selected file: {{ selectedFile.name }}</p>
+  </div>
+</div> 

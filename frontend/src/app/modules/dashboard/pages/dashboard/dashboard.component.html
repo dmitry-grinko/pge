@@ -1,0 +1,36 @@
+<div class="row">
+  <div class="col-12">
+    <div class="card">
+      <div class="card-body">
+        <h2>Dashboard</h2>
+        <br>
+        
+        <!-- Nav tabs -->
+        <ul ngbNav #nav="ngbNav" class="nav-tabs">
+          <li ngbNavItem="manual-input">
+            <a ngbNavLink>Manual Data Input</a>
+            <ng-template ngbNavContent>
+              <app-manual-data-input></app-manual-data-input>
+            </ng-template>
+          </li>
+          <li ngbNavItem="statistics">
+            <a ngbNavLink>File Upload for Bulk Data</a>
+            <ng-template ngbNavContent>
+              <app-file-upload></app-file-upload>
+            </ng-template>
+          </li>
+          <li ngbNavItem="settings">
+            <a ngbNavLink>Retrieve Historical Data</a>
+            <ng-template ngbNavContent>
+              <h3>Settings</h3>
+              <p>Manage your dashboard settings here.</p>
+            </ng-template>
+          </li>
+        </ul>
+        
+        <div [ngbNavOutlet]="nav" class="mt-3"></div>
+        
+      </div>
+    </div>
+  </div>
+</div>

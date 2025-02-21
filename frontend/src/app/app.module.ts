@@ -1,27 +1,25 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
+import { HTTP_INTERCEPTORS } from '@angular/common/http';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { CoreModule } from './core/core.module';
-import { SharedModule } from './shared/shared.module';
-import { AuthInterceptor } from './core/interceptors/auth.interceptor';
-import { HomeComponent } from './pages/home/home.component';
+import { CoreModule } from './modules/core/core.module';
+import { AuthInterceptor } from './modules/core/interceptors/auth.interceptor';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { RouterModule } from '@angular/router';
+import { SharedModule } from './modules/shared/shared.module';
+import { AuthModule } from './modules/auth/auth.module';
+
 
 @NgModule({
-  declarations: [
-    HomeComponent
-  ],
   imports: [
     BrowserModule,
     AppRoutingModule,
-    HttpClientModule,
     CoreModule,
-    SharedModule,
     NgbModule,
-    RouterModule
+    RouterModule,
+    SharedModule,
+    AuthModule
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true }
