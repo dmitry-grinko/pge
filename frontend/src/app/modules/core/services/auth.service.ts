@@ -53,14 +53,6 @@ export class AuthService implements OnDestroy {
 
   private setTokens(tokens: AuthTokens) {
     this.accessTokenSubject.next(tokens.accessToken);
-    
-    if (tokens.refreshToken) {
-      // Set refresh token in HTTP-only cookie via backend
-      axios.post('/auth/set-refresh-token', { refreshToken: tokens.refreshToken }, {
-        withCredentials: true
-      });
-    }
-    
     this.setupRefreshTimer();
   }
 
@@ -100,7 +92,7 @@ export class AuthService implements OnDestroy {
 
   public logout(): void {
     this.accessTokenSubject.next(null);
-    // Clear refresh token cookie
+    // Call logout endpoint which will clear the cookie
     axios.post('/auth/logout', {}, { withCredentials: true });
     this.refreshSubscription?.unsubscribe();
   }

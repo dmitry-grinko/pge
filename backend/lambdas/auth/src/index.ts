@@ -9,13 +9,31 @@ const corsHeaders = {
   'Access-Control-Allow-Credentials': 'true'
 };
 
+// Add cookie configuration
+const cookieConfig = {
+  httpOnly: true,
+  secure: true,
+  sameSite: 'None',
+  domain: '.dmitrygrinko.com', // Your domain
+  path: '/',
+  maxAge: 30 * 24 * 60 * 60 * 1000 // 30 days in milliseconds
+};
+
 const handleLogin = async (data: LoginData): Promise<APIGatewayProxyResultV2> => {
   try {
     const tokens = await CognitoService.login(data.email, data.password);
+    const { refreshToken, ...otherTokens } = tokens;
+    
     return {
       statusCode: 200,
-      headers: corsHeaders,
-      body: JSON.stringify(tokens)
+      headers: {
+        ...corsHeaders,
+        'Access-Control-Allow-Credentials': 'true',
+        'Set-Cookie': `refreshToken=${refreshToken}; ${Object.entries(cookieConfig)
+          .map(([key, value]) => `${key}=${value}`)
+          .join('; ')}`
+      },
+      body: JSON.stringify(otherTokens)
     };
   } catch (error) {
     return {
@@ -70,14 +88,42 @@ const handleVerifyEmail = async (data: VerifyEmailData): Promise<APIGatewayProxy
   }
 };
 
-const handleRefreshToken = async (data: { refreshToken: string }): Promise<APIGatewayProxyResultV2> => {
+const handleLogout = async (): Promise<APIGatewayProxyResultV2> => {
+  return {
+    statusCode: 200,
+    headers: {
+      ...corsHeaders,
+      'Access-Control-Allow-Credentials': 'true',
+      'Set-Cookie': `refreshToken=; ${Object.entries({...cookieConfig, maxAge: 0})
+        .map(([key, value]) => `${key}=${value}`)
+        .join('; ')}`
+    },
+    body: JSON.stringify({ message: 'Logged out successfully' })
+  };
+};
+
+const handleRefreshToken = async (event: APIGatewayProxyEvent | APIGatewayProxyEventV2): Promise<APIGatewayProxyResultV2> => {
   try {
-    const tokens = await CognitoService.refreshToken(data.refreshToken);
+    // Get refresh token from cookies
+    const cookies = isV2Event(event) 
+      ? (event.cookies || [])
+      : (event.headers?.Cookie?.split(';') || []);
+
+    const refreshToken = cookies
+      .map(cookie => cookie.split(';')[0].trim())
+      .find(cookie => cookie.startsWith('refreshToken='))
+      ?.split('=')[1];
+
+    if (!refreshToken) {
+      throw new Error('No refresh token provided');
+    }
+
+    const tokens = await CognitoService.refreshToken(refreshToken);
     return {
       statusCode: 200,
       headers: {
         ...corsHeaders,
-        'Access-Control-Allow-Credentials': 'true',
+        'Access-Control-Allow-Credentials': 'true'
       },
       body: JSON.stringify(tokens)
     };
@@ -133,7 +179,9 @@ export const handler = async (
       case '/dev/auth/verify':
         return await handleVerifyEmail(body);
       case '/dev/auth/refresh':
-        return await handleRefreshToken(body);
+        return await handleRefreshToken(event);
+      case '/dev/auth/logout':
+        return await handleLogout();
       default:
         return {
           statusCode: 404,

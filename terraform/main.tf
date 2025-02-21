@@ -159,6 +159,10 @@ module "api_gateway" {
           path   = "/auth/refresh"
         },
         {
+          method = "POST"
+          path   = "/auth/logout"
+        },
+        {
           method = "OPTIONS"
           path   = "/{proxy+}"
         }
