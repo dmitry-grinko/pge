@@ -187,7 +187,7 @@ module "api_gateway" {
 
 module "dynamodb" {
   source = "./modules/dynamodb"
-  
+
   table_name = "home-energy-monitoring-app-table-${var.environment}"
-  tags = local.tags
+  tags       = local.tags
 }
