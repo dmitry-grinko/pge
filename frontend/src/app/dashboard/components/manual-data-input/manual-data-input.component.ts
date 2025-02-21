@@ -26,11 +26,10 @@ export class ManualDataInputComponent {
     const date = this.myForm.value.date;
     const usage = this.myForm.value.usage;
     const source = 'manual';
-    const userId = this.authService.getUserId();
     
-    if (this.myForm.valid && userId) {
+    if (this.myForm.valid) {
       try {
-        await this.energyService.inputEnergyData({ usage, date, source, userId });
+        await this.energyService.inputEnergyData({ usage, date, source });
       } catch (error) {
         console.error('Failed to submit energy data:', error);
       }

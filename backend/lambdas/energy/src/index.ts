@@ -6,6 +6,7 @@ import { marshall } from '@aws-sdk/util-dynamodb';
 const ddbClient = new DynamoDBClient({ region: 'us-east-1' });
 
 const TABLE_NAME = process.env.TABLE_NAME!;
+// const COGNITO_USER_POOL_ID = process.env.COGNITO_USER_POOL_ID!;
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -18,18 +19,12 @@ interface EnergyInput {
   date: string;
   usage: number;
   source: string;
-  userId: string;
 }
 
-interface CognitoIdToken {
-  sub: string;  // Cognito User ID
-  email: string;
-  // ... other fields we don't need right now
-}
-
-const getUserId = (idToken: string): string => {
-  return '123'
-}
+// interface CognitoIdToken {
+//   sub: string;
+//   email: string;
+// }
 
 const handleInput = async (body: any) => {  
   if (!body.date || !body.usage || !body.source || !body.idToken) {
@@ -43,8 +38,7 @@ const handleInput = async (body: any) => {
   const input: EnergyInput = {
     date: body.date,
     usage: body.usage,
-    source: body.source,
-    userId: getUserId(body.idToken)
+    source: body.source
   };
 
   // Calculate TTL for 1 year from now
@@ -55,7 +49,6 @@ const handleInput = async (body: any) => {
     Date: input.date,
     Usage: input.usage,
     Source: input.source,
-    UserId: input.userId,
     TTL: ttl,
     CreatedAt: new Date().toISOString()
   };

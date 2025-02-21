@@ -7,6 +7,7 @@ resource "aws_apigatewayv2_api" "main" {
     allow_headers = [
       "Content-Type",
       "Authorization",
+      "X-Id-Token",
       "Cookie"
     ]
     expose_headers = ["Set-Cookie"]

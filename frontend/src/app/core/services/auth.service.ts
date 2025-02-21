@@ -1,8 +1,8 @@
 import { Injectable, OnDestroy } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, Subject, timer, Subscription } from 'rxjs';
 import { takeUntil, filter, map } from 'rxjs/operators';
-import axios from 'axios';
-import { environment } from '../../../environments/environment';
+// import { environment } from '../../../environments/environment';
 
 interface AuthTokens {
   accessToken: string;
@@ -15,7 +15,7 @@ interface AuthTokens {
 })
 export class AuthService implements OnDestroy {
   private readonly REFRESH_INTERVAL = 55 * 60 * 1000; // 55 minutes
-  private readonly TOKEN_EXPIRY_BUFFER = 5 * 60 * 1000; // 5 minutes
+  // private readonly TOKEN_EXPIRY_BUFFER = 5 * 60 * 1000; // 5 minutes
 
   private accessTokenSubject = new BehaviorSubject<string | null>(null);
   private idTokenSubject = new BehaviorSubject<string | null>(null);
@@ -30,8 +30,7 @@ export class AuthService implements OnDestroy {
     map(token => !!token)
   );
 
-  constructor() {
-    axios.defaults.baseURL = environment.apiUrl;
+  constructor(private http: HttpClient) {
     // Initialize authentication state
     this.refreshToken()
       .catch(() => this.accessTokenSubject.next(null))
@@ -66,10 +65,14 @@ export class AuthService implements OnDestroy {
 
   public async login(email: string, password: string): Promise<void> {
     try {
-      const response = await axios.post<AuthTokens>('/auth/login', { email, password }, {
-        withCredentials: true
-      });
-      this.setTokens(response.data);
+      const response = await this.http.post<AuthTokens>('/auth/login', 
+        { email, password }, 
+        { withCredentials: true }
+      ).toPromise();
+      
+      if (response) {
+        this.setTokens(response);
+      }
     } catch (error) {
       this.logout();
       throw error;
@@ -84,12 +87,16 @@ export class AuthService implements OnDestroy {
     this.refreshInProgress = true;
 
     try {
-      const response = await axios.post<Omit<AuthTokens, 'refreshToken'>>('/auth/refresh', {}, {
-        withCredentials: true
-      });
+      const response = await this.http.post<Omit<AuthTokens, 'refreshToken'>>(
+        '/auth/refresh', 
+        {}, 
+        { withCredentials: true }
+      ).toPromise();
       
-      this.accessTokenSubject.next(response.data.accessToken);
-      this.setupRefreshTimer();
+      if (response) {
+        this.accessTokenSubject.next(response.accessToken);
+        this.setupRefreshTimer();
+      }
     } catch (error) {
       this.accessTokenSubject.next(null);
       throw error;
@@ -102,40 +109,41 @@ export class AuthService implements OnDestroy {
     this.accessTokenSubject.next(null);
     this.idTokenSubject.next(null);
     // Call logout endpoint which will clear the cookie
-    axios.post('/auth/logout', {}, { withCredentials: true });
+    this.http.post('/auth/logout', {}, { withCredentials: true }).subscribe();
     this.refreshSubscription?.unsubscribe();
   }
 
   public async signup(email: string, password: string): Promise<void> {
     try {
-      const response = await axios.post('/auth/sign-up', { email, password });
-      this.setTokens(response.data);
+      const response = await this.http.post<AuthTokens>('/auth/sign-up', 
+        { email, password }
+      ).toPromise();
+      
+      if (response) {
+        this.setTokens(response);
+      }
     } catch (error) {
       throw error;
     }
   }
 
   public async verify(token: string): Promise<void> {
-    try {
-      await axios.post('/auth/verify', { token });
-    } catch (error) {
-      throw error;
-    }
+    await this.http.post('/auth/verify', { token }).toPromise();
   }
 
   public async requestPasswordReset(email: string): Promise<void> {
-    try {
-      await axios.post('/auth/password-reset', { email });
-    } catch (error) {
-      throw error;
-    }
+    await this.http.post('/auth/password-reset', { email }).toPromise();
   }
 
   public isInitialized(): Observable<boolean> {
     return this.initialized.asObservable();
   }
 
-  public getUserId(): string {
-    return this.idTokenSubject.value || '';
+  public getAccessToken(): string | null {
+    return this.accessTokenSubject.value;
+  }
+
+  public getIdToken(): string | null {
+    return this.idTokenSubject.value;
   }
 }

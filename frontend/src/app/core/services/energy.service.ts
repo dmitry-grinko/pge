@@ -1,18 +1,17 @@
 import { Injectable } from '@angular/core';
-import axios from 'axios';
+import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
+import { firstValueFrom } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
 export class EnergyService {
-  constructor() {
-    axios.defaults.baseURL = environment.apiUrl;
-  }
+  constructor(private http: HttpClient) {}
 
   public async inputEnergyData(data: any): Promise<void> {
     try {
-      await axios.post('/energy/input', data);
+      await firstValueFrom(this.http.post(`${environment.apiUrl}/energy/input`, data));
     } catch (error) {
       throw error;
     }
@@ -22,11 +21,7 @@ export class EnergyService {
     try {
       const formData = new FormData();
       formData.append('file', file);
-      await axios.post('/energy/upload', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data'
-        }
-      });
+      await firstValueFrom(this.http.post(`${environment.apiUrl}/energy/upload`, formData));
     } catch (error) {
       throw error;
     }
@@ -37,8 +32,10 @@ export class EnergyService {
     endDate?: string 
   }): Promise<any> {
     try {
-      const response = await axios.get('/energy/history', { params });
-      return response.data;
+      const response = await firstValueFrom(
+        this.http.get(`${environment.apiUrl}/energy/history`, { params })
+      );
+      return response;
     } catch (error) {
       throw error;
     }
@@ -46,8 +43,10 @@ export class EnergyService {
 
   public async getEnergySummary(): Promise<any> {
     try {
-      const response = await axios.get('/energy/summary');
-      return response.data;
+      const response = await firstValueFrom(
+        this.http.get(`${environment.apiUrl}/energy/summary`)
+      );
+      return response;
     } catch (error) {
       throw error;
     }
@@ -57,11 +56,7 @@ export class EnergyService {
     try {
       const formData = new FormData();
       formData.append('file', file);
-      await axios.post('/energy/upload', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data'
-        }
-      });
+      await firstValueFrom(this.http.post(`${environment.apiUrl}/energy/upload`, formData));
     } catch (error) {
       throw error;
     }
