@@ -26,6 +26,7 @@ export class AuthService {
   public async login(email: string, password: string): Promise<void> {
     try {
       const response = await axios.post('/auth/login', { email, password });
+      console.log('login response', response);
       this.setToken(response.data.token);
     } catch (error) {
       throw error;

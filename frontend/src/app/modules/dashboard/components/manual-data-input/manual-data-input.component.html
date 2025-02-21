@@ -2,30 +2,15 @@
   <div class="row">
     <div class="col-12">
       <h3>Manual Data Input</h3>
-      <form>
+      <form (ngSubmit)="submitEnergyData($event)">
         <div class="mb-3">
-          <label for="dataType" class="form-label">Data Type</label>
-          <select class="form-select" id="dataType">
-            <option selected>Select data type...</option>
-            <option value="1">Type 1</option>
-            <option value="2">Type 2</option>
-            <option value="3">Type 3</option>
-          </select>
-        </div>
-        
-        <div class="mb-3">
-          <label for="value" class="form-label">Value</label>
+          <label for="value" class="form-label">Daily kWh consumption</label>
           <input type="number" class="form-control" id="value">
         </div>
 
         <div class="mb-3">
           <label for="date" class="form-label">Date</label>
           <input type="date" class="form-control" id="date">
-        </div>
-
-        <div class="mb-3">
-          <label for="notes" class="form-label">Notes</label>
-          <textarea class="form-control" id="notes" rows="3"></textarea>
         </div>
 
         <button type="submit" class="btn btn-primary">Submit Data</button>
