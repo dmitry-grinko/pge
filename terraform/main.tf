@@ -146,10 +146,6 @@ module "api_gateway" {
           method = "GET"
           path   = "/energy/summary"
         },
-        {
-          method = "OPTIONS"
-          path   = "/{proxy+}"
-        }
       ]
     }
   }
