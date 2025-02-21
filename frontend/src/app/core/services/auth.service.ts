@@ -18,12 +18,14 @@ export class AuthService implements OnDestroy {
   private readonly TOKEN_EXPIRY_BUFFER = 5 * 60 * 1000; // 5 minutes
 
   private accessTokenSubject = new BehaviorSubject<string | null>(null);
+  private idTokenSubject = new BehaviorSubject<string | null>(null);
   private refreshInProgress = false;
   private refreshSubscription?: Subscription;
   private destroy$ = new Subject<void>();
   private initialized = new BehaviorSubject<boolean>(false);
 
   public accessToken$ = this.accessTokenSubject.asObservable();
+  public idToken$ = this.idTokenSubject.asObservable();
   public isAuthenticated$ = this.accessToken$.pipe(
     map(token => !!token)
   );
@@ -58,6 +60,7 @@ export class AuthService implements OnDestroy {
 
   private setTokens(tokens: AuthTokens) {
     this.accessTokenSubject.next(tokens.accessToken);
+    this.idTokenSubject.next(tokens.idToken);
     this.setupRefreshTimer();
   }
 
@@ -97,6 +100,7 @@ export class AuthService implements OnDestroy {
 
   public logout(): void {
     this.accessTokenSubject.next(null);
+    this.idTokenSubject.next(null);
     // Call logout endpoint which will clear the cookie
     axios.post('/auth/logout', {}, { withCredentials: true });
     this.refreshSubscription?.unsubscribe();
@@ -129,5 +133,9 @@ export class AuthService implements OnDestroy {
 
   public isInitialized(): Observable<boolean> {
     return this.initialized.asObservable();
+  }
+
+  public getUserId(): string {
+    return this.idTokenSubject.value || '';
   }
 }

@@ -139,6 +139,27 @@ const handleRefreshToken = async (event: APIGatewayProxyEvent | APIGatewayProxyE
   }
 };
 
+// const handlePasswordReset = async (data: PasswordResetData): Promise<APIGatewayProxyResultV2> => {
+//   try {
+//     await CognitoService.resetPassword(data.email, data.code, data.newPassword);
+//     return {
+//       statusCode: 200,
+//       headers: corsHeaders,
+//       body: JSON.stringify({ 
+//         message: 'Password reset successful' 
+//       })
+//     };
+//   } catch (error) {
+//     return {
+//       statusCode: 400,
+//       headers: corsHeaders,
+//       body: JSON.stringify({ 
+//         message: error instanceof Error ? error.message : 'Password reset failed' 
+//       })
+//     };
+//   }
+// };
+
 // Type guard to check if event is V2
 function isV2Event(event: APIGatewayProxyEvent | APIGatewayProxyEventV2): event is APIGatewayProxyEventV2 {
   return 'requestContext' in event && 'http' in event.requestContext;
@@ -175,6 +196,8 @@ export const handler = async (
         return await handleRefreshToken(event);
       case '/dev/auth/logout':
         return await handleLogout();
+      // case '/dev/auth/password-reset':
+      //   return await handlePasswordReset(body);
       default:
         return {
           statusCode: 404,

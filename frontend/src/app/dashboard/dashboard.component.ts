@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
-import { ManualDataInputComponent } from '../../components/manual-data-input/manual-data-input.component';
+import { ManualDataInputComponent } from './components/manual-data-input/manual-data-input.component';
 import { NgbNavModule } from '@ng-bootstrap/ng-bootstrap';
-import { FileUploadComponent } from '../../components/file-upload/file-upload.component';
+import { FileUploadComponent } from './components/file-upload/file-upload.component';
 
 @Component({
   selector: 'app-dashboard',

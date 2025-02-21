@@ -1,8 +1,9 @@
 import { Routes } from '@angular/router';
 import { HomeComponent } from './home/home.component';
-import { DashboardComponent } from './dashboard/pages/dashboard/dashboard.component';
-import { LoginComponent } from './auth/pages/login/login.component';
-import { SignupComponent } from './auth/pages/signup/signup.component';
+import { DashboardComponent } from './dashboard/dashboard.component';
+import { LoginComponent } from './auth/login/login.component';
+import { ForgotPasswordComponent } from './auth/forgot-password/forgot-password.component';
+import { SignupComponent } from './auth/signup/signup.component';
 import { AuthGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
@@ -12,6 +13,7 @@ export const routes: Routes = [
     children: [
       { path: 'login', component: LoginComponent },
       { path: 'signup', component: SignupComponent },
+      { path: 'forgot-password', component: ForgotPasswordComponent }
     ]
   },
   { 

@@ -18,21 +18,33 @@ interface EnergyInput {
   date: string;
   usage: number;
   source: string;
+  userId: string;
+}
+
+interface CognitoIdToken {
+  sub: string;  // Cognito User ID
+  email: string;
+  // ... other fields we don't need right now
+}
+
+const getUserId = (idToken: string): string => {
+  return '123'
 }
 
 const handleInput = async (body: any) => {  
-  if (!body.date || !body.usage || !body.source) {
+  if (!body.date || !body.usage || !body.source || !body.idToken) {
     return {
       statusCode: 400,
       headers: corsHeaders,
-      body: JSON.stringify({ message: 'Missing required fields: date, usage' })
+      body: JSON.stringify({ message: 'Missing required fields: date, usage, source, idToken' })
     };
   }
 
   const input: EnergyInput = {
     date: body.date,
     usage: body.usage,
-    source: body.source
+    source: body.source,
+    userId: getUserId(body.idToken)
   };
 
   // Calculate TTL for 1 year from now
@@ -43,6 +55,7 @@ const handleInput = async (body: any) => {
     Date: input.date,
     Usage: input.usage,
     Source: input.source,
+    UserId: input.userId,
     TTL: ttl,
     CreatedAt: new Date().toISOString()
   };

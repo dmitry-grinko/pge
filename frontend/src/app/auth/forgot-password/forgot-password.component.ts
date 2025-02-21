@@ -1,43 +1,39 @@
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
-import { AuthService } from '../../../core/services/auth.service';
-import { ErrorHandlerService } from '../../../core/services/error-handler.service';
+import { AuthService } from '../../core/services/auth.service';
+import { ErrorHandlerService } from '../../core/services/error-handler.service';
 import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
 
 @Component({
-  selector: 'app-signup',
-  templateUrl: './signup.component.html',
+  selector: 'app-forgot-password',
+  templateUrl: './forgot-password.component.html',
   standalone: true,
   imports: [RouterModule, CommonModule, ReactiveFormsModule]
 })
-export class SignupComponent {
-  signupForm: FormGroup;
+export class ForgotPasswordComponent {
+  forgotPasswordForm: FormGroup;
   isLoading = false;
 
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
-    private router: Router,
     private errorHandler: ErrorHandlerService
   ) {
-    this.signupForm = this.fb.group({
-      email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(6)]]
+    this.forgotPasswordForm = this.fb.group({
+      email: ['', [Validators.required, Validators.email]]
     });
   }
 
   async onSubmit() {
-    if (this.signupForm.valid) {
+    if (this.forgotPasswordForm.valid) {
       this.isLoading = true;
       try {
-        await this.authService.signup(
-          this.signupForm.get('email')?.value,
-          this.signupForm.get('password')?.value
+        await this.authService.requestPasswordReset(
+          this.forgotPasswordForm.get('email')?.value
         );
-        this.router.navigate(['/dashboard']);
+        // Show success message
       } catch (error) {
         this.errorHandler.handleError(error);
       } finally {
