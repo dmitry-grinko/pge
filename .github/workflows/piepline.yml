@@ -24,7 +24,7 @@ permissions:
 
 jobs:
   build:
-    name: Build Lambda Function
+    name: Build Lambda Functions
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -68,6 +68,34 @@ jobs:
           path: backend/lambdas/auth/lambda-auth.zip
           retention-days: 5
 
+      - name: Install energy dependencies
+        working-directory: backend/lambdas/energy
+        run: npm ci
+
+      - name: Lint energy code
+        working-directory: backend/lambdas/energy
+        run: npm run lint
+
+      - name: Run energy tests
+        working-directory: backend/lambdas/energy
+        run: npm test
+
+      - name: Build and package energy
+        working-directory: backend/lambdas/energy
+        run: |
+          npm run package
+          if [ ! -f lambda-energy.zip ]; then
+            echo "Error: lambda-energy.zip was not created"
+            exit 1
+          fi
+
+      - name: Upload energy artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: lambda-energy
+          path: backend/lambdas/energy/lambda-energy.zip
+          retention-days: 5
+
   infrastructure:
     name: Deploy Infrastructure
     runs-on: ubuntu-latest
@@ -83,19 +111,16 @@ jobs:
           name: lambda-auth
           path: backend/lambdas/auth
 
-      - name: Set Auth Lambda filename
-        run: |
-          echo "TF_VAR_filename=$(pwd)/backend/lambdas/auth/lambda-auth.zip" >> $GITHUB_ENV
-
       - name: Download Energy Lambda artifact
         uses: actions/download-artifact@v4
         with:
           name: lambda-energy
           path: backend/lambdas/energy
 
-      - name: Set Energy Lambda filename
+      - name: Set Lambda filenames
         run: |
-          echo "TF_VAR_filename=$(pwd)/backend/lambdas/energy/lambda-energy.zip" >> $GITHUB_ENV
+          echo "TF_VAR_auth_lambda_filename=$(pwd)/backend/lambdas/auth/lambda-auth.zip" >> $GITHUB_ENV
+          echo "TF_VAR_energy_lambda_filename=$(pwd)/backend/lambdas/energy/lambda-energy.zip" >> $GITHUB_ENV
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
