@@ -21,12 +21,13 @@ interface EnergyInput {
 }
 
 const handleInput = async (body: any) => {
-  // Validate input
-  if (!body.date || !body.usage || !body.source) {
+  console.log("handleInput", body);
+  
+  if (!body.date || !body.usage) {
     return {
       statusCode: 400,
       headers: corsHeaders,
-      body: JSON.stringify({ message: 'Missing required fields: date, usage, and source' })
+      body: JSON.stringify({ message: 'Missing required fields: date, usage' })
     };
   }
 
