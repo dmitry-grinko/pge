@@ -20,9 +20,7 @@ interface EnergyInput {
   source: string;
 }
 
-const handleInput = async (body: any) => {
-  console.log("handleInput", body);
-  
+const handleInput = async (body: any) => {  
   if (!body.date || !body.usage || !body.source) {
     return {
       statusCode: 400,

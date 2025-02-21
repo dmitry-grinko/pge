@@ -1,9 +1,9 @@
 import { Routes } from '@angular/router';
-import { HomeComponent } from './modules/home/pages/home/home.component';
-import { LoginComponent } from './modules/auth/pages/login/login.component';
-import { SignupComponent } from './modules/auth/pages/signup/signup.component';
-import { ForgotPasswordComponent } from './modules/auth/pages/forgot-password/forgot-password.component';
-import { DashboardComponent } from './modules/dashboard/pages/dashboard/dashboard.component';
+import { HomeComponent } from './home/home.component';
+import { DashboardComponent } from './dashboard/pages/dashboard/dashboard.component';
+import { LoginComponent } from './auth/pages/login/login.component';
+import { SignupComponent } from './auth/pages/signup/signup.component';
+import { AuthGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -12,12 +12,11 @@ export const routes: Routes = [
     children: [
       { path: 'login', component: LoginComponent },
       { path: 'signup', component: SignupComponent },
-      { path: 'forgot-password', component: ForgotPasswordComponent },
     ]
   },
   { 
     path: 'dashboard', 
     component: DashboardComponent,
-    // Add auth guard here if needed
+    canActivate: [AuthGuard]
   }
 ];

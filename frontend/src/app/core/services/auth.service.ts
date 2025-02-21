@@ -2,7 +2,7 @@ import { Injectable, OnDestroy } from '@angular/core';
 import { BehaviorSubject, Observable, Subject, timer, Subscription } from 'rxjs';
 import { takeUntil, filter, map } from 'rxjs/operators';
 import axios from 'axios';
-import { environment } from '../../../../environments/environment';
+import { environment } from '../../../environments/environment';
 
 interface AuthTokens {
   accessToken: string;
@@ -21,6 +21,7 @@ export class AuthService implements OnDestroy {
   private refreshInProgress = false;
   private refreshSubscription?: Subscription;
   private destroy$ = new Subject<void>();
+  private initialized = new BehaviorSubject<boolean>(false);
 
   public accessToken$ = this.accessTokenSubject.asObservable();
   public isAuthenticated$ = this.accessToken$.pipe(
@@ -29,11 +30,10 @@ export class AuthService implements OnDestroy {
 
   constructor() {
     axios.defaults.baseURL = environment.apiUrl;
-    // Try to refresh token on startup
-    this.refreshToken().catch(() => {
-      // If refresh fails, we're not authenticated
-      this.accessTokenSubject.next(null);
-    });
+    // Initialize authentication state
+    this.refreshToken()
+      .catch(() => this.accessTokenSubject.next(null))
+      .finally(() => this.initialized.next(true));
     this.setupRefreshTimer();
   }
 
@@ -81,16 +81,13 @@ export class AuthService implements OnDestroy {
     this.refreshInProgress = true;
 
     try {
-      console.log('AuthService - starting token refresh');
       const response = await axios.post<Omit<AuthTokens, 'refreshToken'>>('/auth/refresh', {}, {
         withCredentials: true
       });
       
-      console.log('AuthService - refresh successful');
       this.accessTokenSubject.next(response.data.accessToken);
       this.setupRefreshTimer();
     } catch (error) {
-      console.log('AuthService - refresh failed:', error);
       this.accessTokenSubject.next(null);
       throw error;
     } finally {
@@ -128,5 +125,9 @@ export class AuthService implements OnDestroy {
     } catch (error) {
       throw error;
     }
+  }
+
+  public isInitialized(): Observable<boolean> {
+    return this.initialized.asObservable();
   }
 }
