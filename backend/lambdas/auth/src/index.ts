@@ -14,7 +14,6 @@ const cookieConfig = {
   httpOnly: true,
   secure: true,
   sameSite: 'None',
-  domain: '.dmitrygrinko.com', // Your domain
   path: '/',
   maxAge: 30 * 24 * 60 * 60 * 1000 // 30 days in milliseconds
 };
@@ -24,15 +23,22 @@ const handleLogin = async (data: LoginData): Promise<APIGatewayProxyResultV2> =>
     const tokens = await CognitoService.login(data.email, data.password);
     const { refreshToken, ...otherTokens } = tokens;
     
+    console.log("refreshToken", refreshToken);
+    console.log("otherTokens", otherTokens);
+
+    const headers = {
+      ...corsHeaders,
+      'Access-Control-Allow-Credentials': 'true',
+      'Set-Cookie': `refreshToken=${refreshToken}; ${Object.entries(cookieConfig)
+        .map(([key, value]) => `${key}=${value}`)
+        .join('; ')}`
+    };
+
+    console.log("headers", headers);
+
     return {
       statusCode: 200,
-      headers: {
-        ...corsHeaders,
-        'Access-Control-Allow-Credentials': 'true',
-        'Set-Cookie': `refreshToken=${refreshToken}; ${Object.entries(cookieConfig)
-          .map(([key, value]) => `${key}=${value}`)
-          .join('; ')}`
-      },
+      headers,
       body: JSON.stringify(otherTokens)
     };
   } catch (error) {

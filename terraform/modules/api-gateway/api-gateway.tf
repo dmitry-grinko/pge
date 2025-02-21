@@ -9,6 +9,7 @@ resource "aws_apigatewayv2_api" "main" {
       "Authorization",
       "Cookie"
     ]
+    expose_headers = ["Set-Cookie"]
     allow_credentials = true
     max_age = 300
   }
