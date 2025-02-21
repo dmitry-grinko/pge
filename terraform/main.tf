@@ -131,14 +131,25 @@ module "api_gateway" {
       lambda_function_name = module.lambda_energy.function_name
       routes = [
         {
-          method = "GET"
-          path   = "/energy/usage"
+          method = "POST"
+          path   = "/energy/input"
         },
         {
           method = "POST"
-          path   = "/energy/data"
+          path   = "/energy/upload"
+        },
+        {
+          method = "GET"
+          path   = "/energy/history"
+        },
+        {
+          method = "GET"
+          path   = "/energy/summary"
+        },
+        {
+          method = "OPTIONS"
+          path   = "/{proxy+}"
         }
-        # Add more routes as needed
       ]
     }
   }

@@ -25,6 +25,24 @@ const handleUpload = async (body: any) => {
   };
 };
 
+const handleHistory = async (body: any) => {
+  console.log("handleHistory", body);
+  return {
+    statusCode: 200,
+    headers: corsHeaders,
+    body: JSON.stringify({ message: 'History handled' })
+  };
+};
+
+const handleSummary = async (body: any) => {
+  console.log("handleSummary", body);
+  return {
+    statusCode: 200,
+    headers: corsHeaders,
+    body: JSON.stringify({ message: 'Summary handled' })
+  };
+};
+
 // Type guard to check if event is V2
 function isV2Event(event: APIGatewayProxyEvent | APIGatewayProxyEventV2): event is APIGatewayProxyEventV2 {
   return 'requestContext' in event && 'http' in event.requestContext;
@@ -63,6 +81,10 @@ export const handler = async (
         return await handleInput(body);
       case '/dev/energy/upload':
         return await handleUpload(body);
+      case '/dev/energy/history':
+        return await handleHistory(body);
+      case '/dev/energy/summary':
+        return await handleSummary(body);
       default:
         return {
           statusCode: 404,
