@@ -5,7 +5,7 @@ import {
   RouterStateSnapshot, 
   Router 
 } from '@angular/router';
-import { Observable, of } from 'rxjs';
+import { Observable, of, from } from 'rxjs';
 import { map, take, catchError, switchMap } from 'rxjs/operators';
 import { AuthService } from '../services/auth.service';
 
@@ -29,13 +29,16 @@ export class AuthGuard implements CanActivate {
           return of(true);
         }
         
-        // Try to refresh token if not authenticated
-        return this.authService.refreshToken().then(() => true).catch(() => {
-          this.router.navigate(['/auth/login'], {
-            queryParams: { returnUrl: state.url }
-          });
-          return false;
-        });
+        // Convert Promise to Observable to handle errors properly
+        return from(this.authService.refreshToken()).pipe(
+          map(() => true),
+          catchError(() => {
+            this.router.navigate(['/auth/login'], {
+              queryParams: { returnUrl: state.url }
+            });
+            return of(false);
+          })
+        );
       })
     );
   }

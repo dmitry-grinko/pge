@@ -2,11 +2,12 @@ resource "aws_apigatewayv2_api" "main" {
   name          = var.name
   protocol_type = "HTTP"
   cors_configuration {
-    allow_origins = ["https://pge.dmitrygrinko.com", "http://localhost:4200"]
+    allow_origins = ["https://pge.dmitrygrinko.com", "http://localhost:4200", "https://lnaa2ljxrj.execute-api.us-east-1.amazonaws.com"]
     allow_methods = ["POST", "GET", "OPTIONS"]
     allow_headers = [
       "Content-Type",
-      "Authorization"
+      "Authorization",
+      "Cookie"
     ]
     allow_credentials = true
     max_age = 300
