@@ -1,4 +1,11 @@
 import { APIGatewayProxyEvent, APIGatewayProxyEventV2, APIGatewayProxyResult, APIGatewayProxyResultV2 } from 'aws-lambda';
+import { DynamoDBClient, PutItemCommand } from '@aws-sdk/client-dynamodb';
+import { v4 as uuidv4 } from 'uuid';
+import { marshall } from '@aws-sdk/util-dynamodb';
+
+const ddbClient = new DynamoDBClient({ region: 'us-east-1' });
+
+const TABLE_NAME = process.env.TABLE_NAME!;
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -7,13 +14,64 @@ const corsHeaders = {
   'Access-Control-Allow-Credentials': 'true'
 };
 
+interface EnergyInput {
+  date: string;
+  usage: number;
+  source: string;
+}
+
 const handleInput = async (body: any) => {
-  console.log("handleInput", body);
-  return {
-    statusCode: 200,
-    headers: corsHeaders,
-    body: JSON.stringify({ message: 'Input handled' })
+  // Validate input
+  if (!body.date || !body.usage || !body.source) {
+    return {
+      statusCode: 400,
+      headers: corsHeaders,
+      body: JSON.stringify({ message: 'Missing required fields: date, usage, and source' })
+    };
+  }
+
+  const input: EnergyInput = {
+    date: body.date,
+    usage: body.usage,
+    source: body.source
   };
+
+  // Calculate TTL for 1 year from now
+  const ttl = Math.floor(Date.now() / 1000) + (365 * 24 * 60 * 60);
+
+  const item = {
+    id: uuidv4(),
+    Date: input.date,
+    Usage: input.usage,
+    Source: input.source,
+    TTL: ttl,
+    CreatedAt: new Date().toISOString()
+  };
+
+  try {
+    await ddbClient.send(new PutItemCommand({
+      TableName: TABLE_NAME,
+      Item: marshall(item)
+    }));
+
+    return {
+      statusCode: 200,
+      headers: corsHeaders,
+      body: JSON.stringify({
+        message: 'Energy data saved successfully',
+        id: item.id
+      })
+    };
+  } catch (error) {
+    console.error('Error saving to DynamoDB:', error);
+    return {
+      statusCode: 500,
+      headers: corsHeaders,
+      body: JSON.stringify({
+        message: 'Failed to save energy usage'
+      })
+    };
+  }
 };
 
 const handleUpload = async (body: any) => {

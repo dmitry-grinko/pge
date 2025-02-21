@@ -50,3 +50,12 @@ variable "memory_size" {
   description = "Memory size for Lambda function in MB"
   default     = 128
 }
+
+variable "additional_policies" {
+  description = "List of additional IAM policies to attach to the Lambda role"
+  type = list(object({
+    name   = string
+    policy = string
+  }))
+  default = []
+}

@@ -12,9 +12,6 @@ const cognitoClient = new CognitoIdentityProviderClient({});
 const USER_POOL_ID = process.env.COGNITO_USER_POOL_ID!;
 const CLIENT_ID = process.env.COGNITO_CLIENT_ID!;
 
-console.log('USER_POOL_ID', USER_POOL_ID);
-console.log('CLIENT_ID', CLIENT_ID);
-
 if (!USER_POOL_ID || !CLIENT_ID) {
   throw new Error('COGNITO_USER_POOL_ID or COGNITO_CLIENT_ID is not set');
 }

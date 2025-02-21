@@ -94,6 +94,40 @@ module "lambda_energy" {
   log_retention_days = 14
   filename           = "../backend/lambdas/energy/lambda-energy.zip"
   tags               = local.tags
+
+  additional_policies = [
+    {
+      name = "dynamodb-access"
+      policy = jsonencode({
+        Version = "2012-10-17"
+        Statement = [
+          {
+            Effect = "Allow"
+            Action = [
+              "dynamodb:BatchGetItem",
+              "dynamodb:BatchWriteItem",
+              "dynamodb:DeleteItem",
+              "dynamodb:GetItem",
+              "dynamodb:PutItem",
+              "dynamodb:Query",
+              "dynamodb:Scan",
+              "dynamodb:UpdateItem"
+            ]
+            Resource = [
+              module.dynamodb.table_arn,
+              "${module.dynamodb.table_arn}/index/*"
+            ]
+          }
+        ]
+      })
+    }
+  ]
+
+  environment_variables = {
+    TABLE_NAME = module.dynamodb.table_name
+  }
+
+  depends_on = [module.dynamodb]
 }
 
 module "api_gateway" {
@@ -149,4 +183,11 @@ module "api_gateway" {
       ]
     }
   }
+}
+
+module "dynamodb" {
+  source = "./modules/dynamodb"
+  
+  table_name = "home-energy-monitoring-app-table-${var.environment}"
+  tags = local.tags
 }
