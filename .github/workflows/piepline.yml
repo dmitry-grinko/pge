@@ -87,6 +87,16 @@ jobs:
         run: |
           echo "TF_VAR_filename=$(pwd)/backend/lambdas/auth/lambda-auth.zip" >> $GITHUB_ENV
 
+      - name: Download Energy Lambda artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: lambda-energy
+          path: backend/lambdas/energy
+
+      - name: Set Energy Lambda filename
+        run: |
+          echo "TF_VAR_filename=$(pwd)/backend/lambdas/energy/lambda-energy.zip" >> $GITHUB_ENV
+
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
