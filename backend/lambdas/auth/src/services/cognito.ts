@@ -93,4 +93,34 @@ export class CognitoService {
       throw error;
     }
   }
+
+  static async refreshToken(refreshToken: string): Promise<Omit<CognitoTokens, 'refreshToken'>> {
+    try {
+      const response = await cognitoClient.send(
+        new InitiateAuthCommand({
+          AuthFlow: AuthFlowType.REFRESH_TOKEN_AUTH,
+          ClientId: CLIENT_ID,
+          AuthParameters: {
+            REFRESH_TOKEN: refreshToken,
+          },
+        })
+      );
+
+      const result = response.AuthenticationResult;
+      if (!result?.AccessToken || !result.IdToken) {
+        throw new Error('Invalid refresh result');
+      }
+
+      return {
+        accessToken: result.AccessToken,
+        idToken: result.IdToken,
+      };
+    } catch (error) {
+      const authError = error as AuthError;
+      if (authError.code === 'NotAuthorizedException') {
+        throw new Error('Invalid refresh token');
+      }
+      throw error;
+    }
+  }
 } 

@@ -70,6 +70,28 @@ const handleVerifyEmail = async (data: VerifyEmailData): Promise<APIGatewayProxy
   }
 };
 
+const handleRefreshToken = async (data: { refreshToken: string }): Promise<APIGatewayProxyResultV2> => {
+  try {
+    const tokens = await CognitoService.refreshToken(data.refreshToken);
+    return {
+      statusCode: 200,
+      headers: {
+        ...corsHeaders,
+        'Access-Control-Allow-Credentials': 'true',
+      },
+      body: JSON.stringify(tokens)
+    };
+  } catch (error) {
+    return {
+      statusCode: 401,
+      headers: corsHeaders,
+      body: JSON.stringify({ 
+        message: error instanceof Error ? error.message : 'Token refresh failed' 
+      })
+    };
+  }
+};
+
 // Type guard to check if event is V2
 function isV2Event(event: APIGatewayProxyEvent | APIGatewayProxyEventV2): event is APIGatewayProxyEventV2 {
   return 'requestContext' in event && 'http' in event.requestContext;
@@ -110,6 +132,8 @@ export const handler = async (
         return await handleSignup(body);
       case '/dev/auth/verify':
         return await handleVerifyEmail(body);
+      case '/dev/auth/refresh':
+        return await handleRefreshToken(body);
       default:
         return {
           statusCode: 404,

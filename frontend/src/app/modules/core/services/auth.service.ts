@@ -1,43 +1,114 @@
-import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { Injectable, OnDestroy } from '@angular/core';
+import { BehaviorSubject, Observable, Subject, timer, Subscription } from 'rxjs';
+import { takeUntil, filter, map } from 'rxjs/operators';
 import axios from 'axios';
 import { environment } from '../../../../environments/environment';
+
+interface AuthTokens {
+  accessToken: string;
+  idToken: string;
+  refreshToken?: string;
+}
 
 @Injectable({
   providedIn: 'root'
 })
-export class AuthService {
-  private isAuthenticatedSubject = new BehaviorSubject<boolean>(this.hasToken());
-  public isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
+export class AuthService implements OnDestroy {
+  private readonly REFRESH_INTERVAL = 55 * 60 * 1000; // 55 minutes
+  private readonly TOKEN_EXPIRY_BUFFER = 5 * 60 * 1000; // 5 minutes
+
+  private accessTokenSubject = new BehaviorSubject<string | null>(null);
+  private refreshInProgress = false;
+  private refreshSubscription?: Subscription;
+  private destroy$ = new Subject<void>();
+
+  public accessToken$ = this.accessTokenSubject.asObservable();
+  public isAuthenticated$ = this.accessToken$.pipe(
+    map(token => !!token)
+  );
 
   constructor() {
     axios.defaults.baseURL = environment.apiUrl;
+    this.setupRefreshTimer();
   }
 
-  private hasToken(): boolean {
-    return !!localStorage.getItem('token');
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
+    this.refreshSubscription?.unsubscribe();
   }
 
-  private setToken(token: string): void {
-    console.log('setting token', token);
-    localStorage.setItem('token', token);
-    this.isAuthenticatedSubject.next(true);
+  private setupRefreshTimer() {
+    this.refreshSubscription?.unsubscribe();
+    
+    this.refreshSubscription = timer(this.REFRESH_INTERVAL)
+      .pipe(
+        takeUntil(this.destroy$),
+        filter(() => !!this.accessTokenSubject.value)
+      )
+      .subscribe(() => {
+        this.refreshToken();
+      });
+  }
+
+  private setTokens(tokens: AuthTokens) {
+    this.accessTokenSubject.next(tokens.accessToken);
+    
+    if (tokens.refreshToken) {
+      // Set refresh token in HTTP-only cookie via backend
+      axios.post('/auth/set-refresh-token', { refreshToken: tokens.refreshToken }, {
+        withCredentials: true
+      });
+    }
+    
+    this.setupRefreshTimer();
   }
 
   public async login(email: string, password: string): Promise<void> {
     try {
-      const response = await axios.post('/auth/login', { email, password });
-      console.log('login response', response);
-      this.setToken(response.data.accessToken);
+      const response = await axios.post<AuthTokens>('/auth/login', { email, password }, {
+        withCredentials: true
+      });
+      this.setTokens(response.data);
     } catch (error) {
+      this.logout();
       throw error;
     }
+  }
+
+  public async refreshToken(): Promise<void> {
+    if (this.refreshInProgress) {
+      return;
+    }
+
+    this.refreshInProgress = true;
+
+    try {
+      const response = await axios.post<Omit<AuthTokens, 'refreshToken'>>('/auth/refresh', {}, {
+        withCredentials: true
+      });
+      
+      this.accessTokenSubject.next(response.data.accessToken);
+      this.setupRefreshTimer();
+    } catch (error) {
+      this.logout();
+      throw error;
+    } finally {
+      this.refreshInProgress = false;
+    }
+  }
+
+  public logout(): void {
+    this.accessTokenSubject.next(null);
+    // Clear refresh token cookie
+    axios.post('/auth/logout', {}, { withCredentials: true });
+    this.refreshSubscription?.unsubscribe();
   }
 
   public async signup(email: string, password: string): Promise<void> {
     try {
       const response = await axios.post('/auth/sign-up', { email, password });
-      this.setToken(response.data.accessToken);
+      this.setTokens(response.data);
     } catch (error) {
       throw error;
     }
@@ -57,10 +128,5 @@ export class AuthService {
     } catch (error) {
       throw error;
     }
-  }
-
-  public logout(): void {
-    localStorage.removeItem('token');
-    this.isAuthenticatedSubject.next(false);
   }
 }

@@ -155,6 +155,10 @@ module "api_gateway" {
           path   = "/auth/verify"
         },
         {
+          method = "POST"
+          path   = "/auth/refresh"
+        },
+        {
           method = "OPTIONS"
           path   = "/{proxy+}"
         }
