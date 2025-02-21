@@ -22,18 +22,13 @@ export class ManualDataInputComponent {
   
   async submitEnergyData(event: Event) {
     event.preventDefault();
-    console.log('submitEnergyData', this.myForm);
     const date = this.myForm.value.date;
     const usage = this.myForm.value.usage;
-    console.log('date', date);
-    console.log('value', usage);
+    const source = 'manual';
     
     if (this.myForm.valid) {
       try {
-        await this.energyService.inputEnergyData({
-          usage: this.formData.usage,
-          date: this.formData.date,
-        });
+        await this.energyService.inputEnergyData({ usage, date, source });
       } catch (error) {
         console.error('Failed to submit energy data:', error);
       }

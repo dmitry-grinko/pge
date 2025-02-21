@@ -23,7 +23,7 @@ interface EnergyInput {
 const handleInput = async (body: any) => {
   console.log("handleInput", body);
   
-  if (!body.date || !body.usage) {
+  if (!body.date || !body.usage || !body.source) {
     return {
       statusCode: 400,
       headers: corsHeaders,
@@ -52,7 +52,7 @@ const handleInput = async (body: any) => {
   try {
     await ddbClient.send(new PutItemCommand({
       TableName: TABLE_NAME,
-      Item: marshall(item)
+      Item: marshall(item, { removeUndefinedValues: true })
     }));
 
     return {
