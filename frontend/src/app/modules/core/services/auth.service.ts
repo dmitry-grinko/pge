@@ -81,13 +81,16 @@ export class AuthService implements OnDestroy {
     this.refreshInProgress = true;
 
     try {
+      console.log('AuthService - starting token refresh');
       const response = await axios.post<Omit<AuthTokens, 'refreshToken'>>('/auth/refresh', {}, {
         withCredentials: true
       });
       
+      console.log('AuthService - refresh successful');
       this.accessTokenSubject.next(response.data.accessToken);
       this.setupRefreshTimer();
     } catch (error) {
+      console.log('AuthService - refresh failed:', error);
       this.accessTokenSubject.next(null);
       throw error;
     } finally {

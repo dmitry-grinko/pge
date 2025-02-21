@@ -25,14 +25,19 @@ export class AuthGuard implements CanActivate {
     return this.authService.isAuthenticated$.pipe(
       take(1),
       switchMap(isAuthenticated => {
+        console.log('AuthGuard - isAuthenticated:', isAuthenticated);
         if (isAuthenticated) {
           return of(true);
         }
         
-        // Convert Promise to Observable to handle errors properly
+        console.log('AuthGuard - attempting token refresh');
         return from(this.authService.refreshToken()).pipe(
-          map(() => true),
-          catchError(() => {
+          map(() => {
+            console.log('AuthGuard - refresh successful');
+            return true;
+          }),
+          catchError((error) => {
+            console.log('AuthGuard - refresh failed:', error);
             this.router.navigate(['/auth/login'], {
               queryParams: { returnUrl: state.url }
             });
