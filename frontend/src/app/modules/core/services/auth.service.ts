@@ -19,6 +19,7 @@ export class AuthService {
   }
 
   private setToken(token: string): void {
+    console.log('setting token', token);
     localStorage.setItem('token', token);
     this.isAuthenticatedSubject.next(true);
   }
@@ -27,7 +28,7 @@ export class AuthService {
     try {
       const response = await axios.post('/auth/login', { email, password });
       console.log('login response', response);
-      this.setToken(response.data.token);
+      this.setToken(response.data.accessToken);
     } catch (error) {
       throw error;
     }
@@ -36,7 +37,7 @@ export class AuthService {
   public async signup(email: string, password: string): Promise<void> {
     try {
       const response = await axios.post('/auth/sign-up', { email, password });
-      this.setToken(response.data.token);
+      this.setToken(response.data.accessToken);
     } catch (error) {
       throw error;
     }

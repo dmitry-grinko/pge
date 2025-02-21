@@ -53,4 +53,18 @@ export class EnergyService {
       throw error;
     }
   }
+
+  public async uploadEnergyData(file: File): Promise<void> {
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      await axios.post('/energy/upload', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+    } catch (error) {
+      throw error;
+    }
+  }
 } 
