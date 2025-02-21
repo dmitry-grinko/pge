@@ -2,6 +2,7 @@ import { APIGatewayProxyEvent, APIGatewayProxyEventV2, APIGatewayProxyResult, AP
 import { DynamoDBClient, PutItemCommand } from '@aws-sdk/client-dynamodb';
 import { v4 as uuidv4 } from 'uuid';
 import { marshall } from '@aws-sdk/util-dynamodb';
+import jwt from 'jsonwebtoken';
 
 const ddbClient = new DynamoDBClient({ region: 'us-east-1' });
 
@@ -16,18 +17,18 @@ const corsHeaders = {
 };
 
 interface EnergyInput {
-  date: string;
-  usage: number;
-  source: string;
+  id: string;
+  Date: string;
+  Usage: number;
+  Source: string;
+  UserId: string | (() => string); // TODO: Fix type - string | (() => string) -> string
+  TTL: number;
+  CreatedAt: string;
 }
 
-// interface CognitoIdToken {
-//   sub: string;
-//   email: string;
-// }
-
-const handleInput = async (body: any) => {  
-  if (!body.date || !body.usage || !body.source || !body.idToken) {
+// TODO: Fix type - string | (() => string) -> string
+const handleInput = async (body: any, sub: string | (() => string)) => {  
+  if (!body.date || !body.usage || !body.source || !sub) {
     return {
       statusCode: 400,
       headers: corsHeaders,
@@ -35,20 +36,15 @@ const handleInput = async (body: any) => {
     };
   }
 
-  const input: EnergyInput = {
-    date: body.date,
-    usage: body.usage,
-    source: body.source
-  };
-
   // Calculate TTL for 1 year from now
   const ttl = Math.floor(Date.now() / 1000) + (365 * 24 * 60 * 60);
 
-  const item = {
+  const item: EnergyInput = {
     id: uuidv4(),
-    Date: input.date,
-    Usage: input.usage,
-    Source: input.source,
+    Date: body.date,
+    Usage: body.usage,
+    Source: body.source,
+    UserId: sub,
     TTL: ttl,
     CreatedAt: new Date().toISOString()
   };
@@ -79,7 +75,7 @@ const handleInput = async (body: any) => {
   }
 };
 
-const handleUpload = async (body: any) => {
+const handleUpload = async (body: any, sub: string | (() => string)) => {
   console.log("handleUpload", body);
   return {
     statusCode: 200,
@@ -88,7 +84,7 @@ const handleUpload = async (body: any) => {
   };
 };
 
-const handleHistory = async (body: any) => {
+const handleHistory = async (body: any, sub: string | (() => string)) => {
   console.log("handleHistory", body);
   return {
     statusCode: 200,
@@ -97,7 +93,7 @@ const handleHistory = async (body: any) => {
   };
 };
 
-const handleSummary = async (body: any) => {
+const handleSummary = async (body: any, sub: string | (() => string)) => {
   console.log("handleSummary", body);
   return {
     statusCode: 200,
@@ -136,18 +132,48 @@ export const handler = async (
 
   try {
     const body = event.body ? JSON.parse(event.body) : {};
+    let idToken: string | undefined;
+    let accessToken: string | undefined;
 
-    console.log("body", body);
+    try {
+      idToken = event.headers['x-id-token'];
+      accessToken = event.headers.authorization?.split(' ')[1];
+    } catch (error) {
+      console.error('Error parsing headers:', error);
+      return {
+        statusCode: 400,
+        headers: corsHeaders,
+        body: JSON.stringify({ message: 'Invalid headers' })
+      };
+    }
+
+    if (!idToken) {
+      return {
+        statusCode: 401,
+        headers: corsHeaders,
+        body: JSON.stringify({ message: 'Unauthorized. No ID token.' })
+      };
+    }
+
+    const sub = jwt.decode(idToken, { complete: true })?.payload?.sub;
+
+    if (!sub) {
+      return {
+        statusCode: 401,
+        headers: corsHeaders,
+        body: JSON.stringify({ message: 'Unauthorized. Invalid ID token.' })
+      };
+    }
 
     switch (path) {
       case '/dev/energy/input':
-        return await handleInput(body);
+        return await handleInput(body, sub);
       case '/dev/energy/upload':
-        return await handleUpload(body);
+        return await handleUpload(body, sub);
       case '/dev/energy/history':
-        return await handleHistory(body);
+        return await handleHistory(body, sub);
       case '/dev/energy/summary':
-        return await handleSummary(body);
+        return await handleSummary(body, sub);
       default:
         return {
           statusCode: 404,
