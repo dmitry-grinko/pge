@@ -5,8 +5,8 @@ import {
   RouterStateSnapshot, 
   Router 
 } from '@angular/router';
-import { Observable } from 'rxjs';
-import { map, take } from 'rxjs/operators';
+import { Observable, of } from 'rxjs';
+import { map, take, catchError, switchMap } from 'rxjs/operators';
 import { AuthService } from '../services/auth.service';
 
 @Injectable({
@@ -24,14 +24,18 @@ export class AuthGuard implements CanActivate {
   ): Observable<boolean> {
     return this.authService.isAuthenticated$.pipe(
       take(1),
-      map(isAuthenticated => {
-        if (!isAuthenticated) {
+      switchMap(isAuthenticated => {
+        if (isAuthenticated) {
+          return of(true);
+        }
+        
+        // Try to refresh token if not authenticated
+        return this.authService.refreshToken().then(() => true).catch(() => {
           this.router.navigate(['/auth/login'], {
             queryParams: { returnUrl: state.url }
           });
           return false;
-        }
-        return true;
+        });
       })
     );
   }

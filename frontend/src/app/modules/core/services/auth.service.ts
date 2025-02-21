@@ -29,6 +29,11 @@ export class AuthService implements OnDestroy {
 
   constructor() {
     axios.defaults.baseURL = environment.apiUrl;
+    // Try to refresh token on startup
+    this.refreshToken().catch(() => {
+      // If refresh fails, we're not authenticated
+      this.accessTokenSubject.next(null);
+    });
     this.setupRefreshTimer();
   }
 
@@ -83,7 +88,7 @@ export class AuthService implements OnDestroy {
       this.accessTokenSubject.next(response.data.accessToken);
       this.setupRefreshTimer();
     } catch (error) {
-      this.logout();
+      this.accessTokenSubject.next(null);
       throw error;
     } finally {
       this.refreshInProgress = false;
