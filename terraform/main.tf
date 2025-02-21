@@ -63,14 +63,12 @@ module "cognito" {
   tags   = local.tags
 }
 
-
-
 # Lambdas
 
-module "lambda" {
+module "lambda_auth" {
   source = "./modules/lambda"
 
-  function_name      = var.project-name
+  function_name      = "${var.project-name}-auth"
   environment        = var.environment
   runtime            = "nodejs20.x"
   handler            = "index.handler"
@@ -86,12 +84,62 @@ module "lambda" {
   depends_on = [module.cognito]
 }
 
+module "lambda_energy" {
+  source = "./modules/lambda"
+
+  function_name      = "${var.project-name}-energy"
+  environment        = var.environment
+  runtime            = "nodejs20.x"
+  handler            = "index.handler"
+  log_retention_days = 14
+  filename           = "../backend/lambdas/energy/lambda-energy.zip"
+  tags               = local.tags
+}
+
 module "api_gateway" {
   source = "./modules/api-gateway"
 
-  name                 = "${var.project-name}-api"
-  environment          = var.environment
-  lambda_function_arn  = module.lambda.function_arn
-  lambda_function_name = module.lambda.function_name
-  tags                 = local.tags
+  name        = "${var.project-name}-api"
+  environment = var.environment
+  tags        = local.tags
+
+  integrations = {
+    auth = {
+      lambda_function_arn  = module.lambda_auth.function_arn
+      lambda_function_name = module.lambda_auth.function_name
+      routes = [
+        {
+          method = "POST"
+          path   = "/auth/login"
+        },
+        {
+          method = "POST"
+          path   = "/auth/signup"
+        },
+        {
+          method = "POST"
+          path   = "/auth/verify"
+        },
+        {
+          method = "OPTIONS"
+          path   = "/{proxy+}"
+        }
+      ]
+    },
+    energy = {
+      lambda_function_arn  = module.lambda_energy.function_arn
+      lambda_function_name = module.lambda_energy.function_name
+      routes = [
+        {
+          method = "GET"
+          path   = "/energy/usage"
+        },
+        {
+          method = "POST"
+          path   = "/energy/data"
+        }
+        # Add more routes as needed
+      ]
+    }
+  }
 }

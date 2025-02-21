@@ -2,7 +2,7 @@ resource "aws_apigatewayv2_api" "main" {
   name          = var.name
   protocol_type = "HTTP"
   cors_configuration {
-    allow_origins = ["https://pge.dmitrygrinko.com"]
+    allow_origins = ["https://pge.dmitrygrinko.com", "http://localhost:4200"]
     allow_methods = ["POST", "GET", "OPTIONS"]
     allow_headers = [
       "Content-Type",
@@ -29,41 +29,40 @@ resource "aws_apigatewayv2_stage" "main" {
 }
 
 resource "aws_apigatewayv2_integration" "lambda" {
+  for_each = var.integrations
+  
   api_id = aws_apigatewayv2_api.main.id
   integration_type   = "AWS_PROXY"
   integration_method = "POST"
-  integration_uri    = var.lambda_function_arn
+  integration_uri    = each.value.lambda_function_arn
 }
 
-resource "aws_apigatewayv2_route" "login" {
-  api_id = aws_apigatewayv2_api.main.id
-  route_key = "POST /auth/login"
-  target    = "integrations/${aws_apigatewayv2_integration.lambda.id}"
-}
+resource "aws_apigatewayv2_route" "routes" {
+  for_each = {
+    for idx, route in flatten([
+      for integration_key, integration in var.integrations : [
+        for route in integration.routes : {
+          integration_key = integration_key
+          method         = route.method
+          path          = route.path
+          authorization_type = route.authorization_type
+        }
+      ]
+    ]) : "${route.method} ${route.path}" => route
+  }
 
-resource "aws_apigatewayv2_route" "signup" {
   api_id = aws_apigatewayv2_api.main.id
-  route_key = "POST /auth/signup"
-  target    = "integrations/${aws_apigatewayv2_integration.lambda.id}"
-}
-
-resource "aws_apigatewayv2_route" "verify" {
-  api_id = aws_apigatewayv2_api.main.id
-  route_key = "POST /auth/verify"
-  target    = "integrations/${aws_apigatewayv2_integration.lambda.id}"
-}
-
-resource "aws_apigatewayv2_route" "options" {
-  api_id = aws_apigatewayv2_api.main.id
-  route_key = "OPTIONS /{proxy+}"
-  target    = "integrations/${aws_apigatewayv2_integration.lambda.id}"
-  authorization_type = "NONE"
+  route_key = "${each.value.method} ${each.value.path}"
+  target    = "integrations/${aws_apigatewayv2_integration.lambda[each.value.integration_key].id}"
+  authorization_type = each.value.authorization_type
 }
 
 resource "aws_lambda_permission" "api_gw" {
+  for_each = var.integrations
+  
   statement_id  = "AllowExecutionFromAPIGateway"
   action        = "lambda:InvokeFunction"
-  function_name = var.lambda_function_name
+  function_name = each.value.lambda_function_name
   principal     = "apigateway.amazonaws.com"
   source_arn = "${aws_apigatewayv2_api.main.execution_arn}/*/*"
 } 

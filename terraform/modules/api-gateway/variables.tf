@@ -8,17 +8,20 @@ variable "environment" {
   description = "Environment name"
 }
 
-variable "lambda_function_arn" {
-  type        = string
-  description = "ARN of the Lambda function to integrate with"
-}
-
-variable "lambda_function_name" {
-  type        = string
-  description = "Name of the Lambda function"
-}
-
 variable "tags" {
   type        = map(string)
-  description = "Tags to apply to resources"
+  description = "Resource tags"
+}
+
+variable "integrations" {
+  type = map(object({
+    lambda_function_arn  = string
+    lambda_function_name = string
+    routes = list(object({
+      method = string
+      path   = string
+      authorization_type = optional(string, "NONE")
+    }))
+  }))
+  description = "Map of Lambda integrations and their routes"
 } 
